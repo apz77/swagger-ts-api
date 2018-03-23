@@ -1,0 +1,28 @@
+{
+  "name": "swagger-ts-api",
+  "version": "0.0.1",
+  "description": "Typescript API builder from swagger schema",
+  "main": "bin/index.js",
+  "scripts": {
+    "build": "tsc -p ./src"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/apz77/swagger-ts-api.git"
+  },
+  "keywords": [
+    "swagger",
+    "api",
+    "typescript"
+  ],
+  "author": "nbelobrov",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/apz77/swagger-ts-api/issues"
+  },
+  "homepage": "https://github.com/apz77/swagger-ts-api#readme",
+  "devDependencies": {
+    "@types/request": "^2.47.0",
+    "request": "^2.85.0"
+  }
+}
