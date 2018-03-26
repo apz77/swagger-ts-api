@@ -73,7 +73,7 @@ export class InterfaceGenerator {
             .filter((propertyName) => properties[propertyName].isRequired)
             .map((propertyName) => `${getPropertyName(properties[propertyName], newCtx)}: v0`)
 
-        requiredFields.unshift(`type: \"${schema.name}\"`)
+        requiredFields.unshift(`modelType: \"${schema.name}\"`)
         result = result.replace(/{{emptyModelFields}}/g, requiredFields.join(","))
 
         // {{fieldsMetadata}}

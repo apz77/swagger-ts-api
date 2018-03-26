@@ -18,6 +18,7 @@ export class TypeToTsPropertyConverter {
         [BasicType.DATE]: "DateOnly",
         [BasicType.DATETIME]: "DateTime",
         [BasicType.HOSTNAME]: "Hostname",
+        [BasicType.DURATION]: "Duration",
         [BasicType.EMAIL]: "Email",
         [BasicType.PERMIT]: "Permit",
         [BasicType.FOLDERTYPE]: "FolderType",
