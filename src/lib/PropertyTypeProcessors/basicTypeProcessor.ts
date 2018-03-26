@@ -9,6 +9,7 @@ export class BasicTypeProcessor implements TypeProcessor {
         "string": BasicType.STRING,
         "boolean": BasicType.BOOLEAN,
         "number": BasicType.NUMBER,
+        "integer": BasicType.NUMBER,
     }
 
     protected formatMap: {[key: string]: BasicType} = {
@@ -26,7 +27,7 @@ export class BasicTypeProcessor implements TypeProcessor {
 
         // Very basic type
         if (!swaggerSchemaProperty.format || typeName === "null") {
-            if (name.substr(-2) !== "Id" || typeName === "null") {
+            if (name.substr(-2) !== "Id" || typeName === "null" || name === "emailId") {
                 return {
                     basicType: this.basicTypeMap[typeName]
                 }

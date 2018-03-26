@@ -1,11 +1,16 @@
-import { AllSchemas, ArrayType, BasicType, EnumType, ErrorType, LinkType, PropertyType } from "../types";
+import {
+    AllSchemas, ArrayType, BasicType, EnumType, ErrorType, LinkType, ObjectType,
+    PropertyType, Schema
+} from "../types";
+import { getPropertyName, InterfaceGeneratorContext } from "./interfaceGenerator";
 
-export interface TypeToTsPropertyConverterContext {
-    hasError: boolean
+export interface TypeToTsPropertyConverterContext extends InterfaceGeneratorContext {
+    schema: Schema
+    howDeepIsYourLove: number
 }
 
 export class TypeToTsPropertyConverter {
-    protected basicTypesMap: {[key: number]: string} = {
+    protected basicTypesMap: {[key: string]: string} = {
         [BasicType.NULL]: "null",
         [BasicType.STRING]: "string",
         [BasicType.NUMBER]: "number",
@@ -16,29 +21,46 @@ export class TypeToTsPropertyConverter {
         [BasicType.EMAIL]: "Email",
         [BasicType.PERMIT]: "Permit",
         [BasicType.FOLDERTYPE]: "FolderType",
+        [BasicType.INVITATIONSTATUS]: "InvitationStatus",
         [BasicType.JSON]: "string",
     }
 
     constructor(protected allSchemas: AllSchemas) {}
 
-    public convert(type: PropertyType, ctx: TypeToTsPropertyConverterContext) {
+    public convert(type: PropertyType, ctx: TypeToTsPropertyConverterContext): any {
         if (this.basicTypesMap[type.basicType]) {
             return this.basicTypesMap[type.basicType]
         }
 
+        const nextCtx = Object.assign({}, ctx)
+        nextCtx.howDeepIsYourLove = nextCtx.howDeepIsYourLove ? 1 : nextCtx.howDeepIsYourLove + 1
+
         switch (type.basicType) {
-            case BasicType.ARRAY: return `${this.convert((type as ArrayType).arrayType, ctx)}[]`
-            case BasicType.OBJECT: return 
+            case BasicType.MODELTYPE: return "ModelTypes"
+            case BasicType.MODELID: return "string"
+            case BasicType.ARRAY: return `Array<${this.convert((type as ArrayType).arrayType, ctx)}>`
+            case BasicType.OBJECT: return this.convertObject(type as ObjectType, ctx)
             case BasicType.ENUM: return (type as EnumType).values.map((val) => `"${val}"`).join(" | ")
             case BasicType.LINK: if (this.allSchemas[(type as LinkType).linkTo]) {
                 return (type as LinkType).linkTo
             } else {
-                ctx.hasError = true
-                const error = `ErrorType(model ${(type as LinkType).linkTo} has not been found in swagger doc)`
+                ctx.hasErrors = true
+                const error = `${ctx.schema.name} ErrorType(model ${(type as LinkType).linkTo} has not been found in swagger doc)`
                 console.error(error)
                 return error
             }
             case BasicType.ERROR: return `ErrorType(${(type as ErrorType).error})`
         }
+    }
+
+    protected convertObject(type: ObjectType, ctx: TypeToTsPropertyConverterContext) {
+        const {properties} = type
+        const objectInterface = Object.keys(properties).map((propertyName: string) => {
+            const property = properties[propertyName]
+            const types = property.types.map((subType) => this.convert(subType, ctx))
+            return `${"    ".repeat(ctx.howDeepIsYourLove + 1)}${getPropertyName(property, ctx)}${property.isRequired ? "" : "?"}: ${types.join(" | ")}`
+        }).join("\n")
+
+        return `{\n${objectInterface}\n${"    ".repeat(ctx.howDeepIsYourLove)}}\n`
     }
 }

@@ -22,25 +22,28 @@ export interface SwaggerSchema {
 export enum BasicType {
 
     // SimpleTypes
-    NULL = 0,
-    STRING,
-    NUMBER,
-    BOOLEAN,
-    DATE,
-    DATETIME,
-    DURATION,
-    HOSTNAME,
-    EMAIL,
-    PERMIT,
-    FOLDERTYPE,
-    JSON,
+    NULL = "null",
+    STRING = "string",
+    NUMBER = "number",
+    BOOLEAN = "boolean",
+    DATE = "date",
+    DATETIME = "datetime",
+    DURATION = "duration",
+    HOSTNAME = "Hostanme",
+    EMAIL = "Email",
+    PERMIT = "Permit",
+    FOLDERTYPE = "FolderType",
+    INVITATIONSTATUS = "InvitationStatus",
+    JSON = "json",
+    MODELTYPE = "ModelType",
+    MODELID = "ModelId",
 
     // Specific types
-    ARRAY,
-    OBJECT,
-    ENUM,
-    LINK,
-    ERROR,
+    ARRAY ="array",
+    OBJECT = "object",
+    ENUM = "enum",
+    LINK = "link",
+    ERROR = "error",
 }
 
 export interface PropertyBasicType {
@@ -48,7 +51,7 @@ export interface PropertyBasicType {
 }
 
 export interface ArrayType extends PropertyBasicType {
-    arrayType: PropertyBasicType
+    arrayType: PropertyType
 }
 
 export interface EnumType extends PropertyBasicType {

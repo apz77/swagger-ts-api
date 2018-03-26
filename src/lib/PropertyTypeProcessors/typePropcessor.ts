@@ -5,6 +5,7 @@ import { EnumTypeProcessor } from "./enumTypeProcessor";
 import { ArrayTypeProcessor } from "./arrayTypeProcessor";
 import { BasicTypeProcessor } from "./basicTypeProcessor";
 import { LinkTypeProcessor } from "./linkTypeProcessor";
+import { ModelTypeProcessor } from "./modelTypeProcessor";
 
 export interface TypeFactoryContext extends PropertyProcessorContext {
     propertyName: string
@@ -38,6 +39,7 @@ export interface TypeProcessor {
 }
 
 export const defaultTypeProcessors = [
+    new ModelTypeProcessor(),
     new LinkTypeProcessor(),
     new ObjectTypeProcessor(),
     new EnumTypeProcessor(),

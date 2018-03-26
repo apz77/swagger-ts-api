@@ -38,8 +38,9 @@ export class SchemaFactory {
                 resultSchema.properties[propertyName] = getErorrProperty(`Unable to translate Property ${propertyName}`)
                 ctx.hasErrors = true
             }
-            schemaFactoryContext.hasErrors = schemaFactoryContext.hasErrors || ctx.hasErrors
         }
+
+        schemaFactoryContext.hasErrors = schemaFactoryContext.hasErrors || ctx.hasErrors
 
         return resultSchema
     }

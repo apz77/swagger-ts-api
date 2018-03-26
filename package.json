@@ -23,6 +23,7 @@
   "homepage": "https://github.com/apz77/swagger-ts-api#readme",
   "devDependencies": {
     "@types/request": "^2.47.0",
-    "request": "^2.85.0"
+    "request": "^2.85.0",
+    "typescript": "^2.7.2"
   }
 }
