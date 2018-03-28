@@ -6,10 +6,11 @@ import { getPropertyName, InterfaceGeneratorContext } from "./interfaceGenerator
 
 export interface TypeToTsPropertyConverterContext extends InterfaceGeneratorContext {
     schema: Schema
-    howDeepIsYourLove: number
+    tabs: number
 }
 
 export class TypeToTsPropertyConverter {
+
     protected basicTypesMap: {[key: string]: string} = {
         [BasicType.NULL]: "null",
         [BasicType.STRING]: "string",
@@ -33,14 +34,16 @@ export class TypeToTsPropertyConverter {
             return this.basicTypesMap[type.basicType]
         }
 
-        const nextCtx = Object.assign({}, ctx)
-        nextCtx.howDeepIsYourLove = nextCtx.howDeepIsYourLove ? 1 : nextCtx.howDeepIsYourLove + 1
+        const nextCtx = {
+            ...ctx,
+            tabs: ctx.tabs + 1
+        }
 
         switch (type.basicType) {
             case BasicType.MODELTYPE: return "ModelTypes"
             case BasicType.MODELID: return "string"
-            case BasicType.ARRAY: return `Array<${this.convert((type as ArrayType).arrayType, ctx)}>`
-            case BasicType.OBJECT: return this.convertObject(type as ObjectType, ctx)
+            case BasicType.ARRAY: return `Array<${this.convert((type as ArrayType).arrayType, nextCtx)}>`
+            case BasicType.OBJECT: return this.convertObject(type as ObjectType, nextCtx)
             case BasicType.ENUM: return (type as EnumType).values.map((val) => `"${val}"`).join(" | ")
             case BasicType.LINK: if (this.allSchemas[(type as LinkType).linkTo]) {
                 return (type as LinkType).linkTo
@@ -59,9 +62,9 @@ export class TypeToTsPropertyConverter {
         const objectInterface = Object.keys(properties).map((propertyName: string) => {
             const property = properties[propertyName]
             const types = property.types.map((subType) => this.convert(subType, ctx))
-            return `${"    ".repeat(ctx.howDeepIsYourLove + 1)}${getPropertyName(property, ctx)}${property.isRequired ? "" : "?"}: ${types.join(" | ")}`
+            return `${"    ".repeat(ctx.tabs + 1)}${getPropertyName(property, ctx)}${property.isRequired ? "" : "?"}: ${types.join(" | ")}`
         }).join("\n")
 
-        return `{\n${objectInterface}\n${"    ".repeat(ctx.howDeepIsYourLove)}}\n`
+        return `{\n${objectInterface}\n${"    ".repeat(ctx.tabs)}}`
     }
 }

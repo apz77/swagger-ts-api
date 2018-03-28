@@ -1,4 +1,4 @@
-import { Schema, SwaggerSchema } from "./types";
+import { Schema, SwaggerSchema } from "../types";
 import { getErrorType, PropertyProcessorContext, SchemaPropertyFactory } from "./schemaProperty";
 
 export interface SchemaFactoryContext {

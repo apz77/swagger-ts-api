@@ -1,4 +1,4 @@
-import { getErrorType } from "../schemaProperty";
+import { getErrorType } from "../schemaProcessor/schemaProperty";
 import { BasicType, PropertyType, SwaggerSchemaProperty } from "../types";
 import { TypeProcessor, TypeProcessorContext } from "./typePropcessor";
 

@@ -1,5 +1,5 @@
 import { PropertyType, SwaggerSchemaProperty } from "../types";
-import { getErrorType, PropertyProcessorContext } from "../schemaProperty";
+import { getErrorType, PropertyProcessorContext } from "../schemaProcessor/schemaProperty";
 import { ObjectTypeProcessor } from "./objectTypeProcessor";
 import { EnumTypeProcessor } from "./enumTypeProcessor";
 import { ArrayTypeProcessor } from "./arrayTypeProcessor";

@@ -1,6 +1,6 @@
 import { TypeProcessor, TypeProcessorContext } from "./typePropcessor";
 import { BasicType, ObjectProperty, PropertyType, SwaggerSchemaProperty } from "../types";
-import { getErorrProperty } from "../schema";
+import { getErorrProperty } from "../schemaProcessor/schema";
 
 export class ObjectTypeProcessor implements TypeProcessor {
 

@@ -1,4 +1,5 @@
 // Interfaces that come from swagger
+
 export interface SwaggerSchemaProperty {
     type: string | string[]
     format?: string
@@ -16,6 +17,46 @@ export interface SwaggerSchema {
     properties: {[key: string]: SwaggerSchemaProperty}
     required?: string[]
     type: string
+    "x-metadata"?: {
+        schema?: string
+    }
+}
+
+export interface SwaggerMethod {
+    description?: string
+    summary?: string
+    tags?: string[]
+    "x-metadata": {
+        method?: string
+    }
+
+    requestBody?: {
+        content?: {
+            "application/json"?: {
+                schema: SwaggerSchema
+            }
+        }
+    }
+    responses: {
+        "200"?: {
+            content?: {
+                "application/json"?: {
+                    schema: SwaggerSchema
+                }
+            }
+        }
+    }
+}
+
+export interface SwaggerPath {
+    get?: SwaggerMethod
+    post?: SwaggerMethod
+    put?: SwaggerMethod
+    delete?: SwaggerMethod
+}
+
+export  interface SwaggerPaths {
+    [key: string]: SwaggerPath
 }
 
 // Inner properties
@@ -86,4 +127,22 @@ export interface Schema {
 
 export interface AllSchemas {
     [key: string]: Schema
+}
+
+export type HttpMethods = "get" | "post" | "put" | "delete"
+
+export interface Method {
+    name: string
+    tag: string
+    url: string
+    method: HttpMethods
+    description: string
+    summary: string
+    request: Schema | null
+    response: Schema | null
+}
+
+// Methods are grouped by a tag (key === tag)
+export interface Paths {
+    [key: string]: Method[]
 }

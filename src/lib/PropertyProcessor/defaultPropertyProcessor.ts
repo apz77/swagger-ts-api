@@ -1,4 +1,4 @@
-import { PropertyProcessor, PropertyProcessorContext } from "../schemaProperty";
+import { PropertyProcessor, PropertyProcessorContext } from "../schemaProcessor/schemaProperty";
 import { ObjectProperty, SwaggerSchemaProperty } from "../types";
 import { TypeFactory } from "../PropertyTypeProcessors/typePropcessor";
 

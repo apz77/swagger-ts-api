@@ -1,42 +1,22 @@
 import { AllSchemas, ArrayType, BasicType, LinkType, ObjectProperty, Schema } from "../types";
-import { TypeToTsPropertyConverter, TypeToTsPropertyConverterContext } from "./TypeToTsPropertyConverter";
+import { TypeToTsPropertyConverter, TypeToTsPropertyConverterContext } from "./typeToTsPropertyConverter";
+import { defaultInterfaceTemplate, defaultFieldMetadataTemplate, defaultMetadataTemplate } from "./tsInterfacesStub";
 
 export interface InterfaceGeneratorContext {
     hasErrors: boolean
+    tabs: number
 }
 
 export class InterfaceGenerator {
+
     protected template: string
+    protected metadataFieldTemplate: string
     protected metadataTemplate: string
 
-    constructor(template?: string) {
-        this.template = template
-            ? template
-            : "\n" +
-            "export interface {{name}} extends BaseModel {\n" +
-            "{{properties}}\n" +
-            "}\n" +
-            "\n" +
-            "export module {{name}}Metadata {\n" +
-            "\n" +
-            "    const type = \"{{name}}\"\n" +
-            "    const emptyModel: {{name}} = {{{emptyModelFields}}}\n" +
-            "\n" +
-            "    Object.freeze(emptyModel)\n" +
-            "\n" +
-            "    export module fields {\n" +
-            "{{fieldsMetadata}}\n" +
-            "    }\n" +
-            "}\n"
-
-        this.metadataTemplate =
-            "       export const {{name}} = {\n" +
-            "           name: \"{{name}}\",\n" +
-            "           types: {{types}},\n" +
-            "           subType: \"{{subType}}\",\n" +
-            "           isRequired: {{isRequired}},\n" +
-            "           apiField: \"{{apiField}}\"\n" +
-            "       }\n"
+    constructor(template?: string, metadataTemplate?: string, metadataFieldTemplate?: string) {
+        this.template = template || defaultInterfaceTemplate
+        this.metadataFieldTemplate = metadataFieldTemplate || defaultFieldMetadataTemplate
+        this.metadataTemplate = metadataTemplate || defaultMetadataTemplate
     }
 
 
@@ -47,6 +27,12 @@ export class InterfaceGenerator {
     generate(schema: Schema, allSchemas: AllSchemas, ctx: InterfaceGeneratorContext): string {
         const typeToTsPropertyConverter = new TypeToTsPropertyConverter(allSchemas)
         let result = this.template.slice()
+        const tabs = ctx.tabs || 0
+
+        if (tabs) {
+            result = result.split("\n").map((item) => "    ".repeat(tabs) + item).join("\n")
+        }
+
         // {{name}}
         result = result.replace(/{{name}}/g, schema.name)
 
@@ -55,18 +41,40 @@ export class InterfaceGenerator {
         const propertyNames = Object.keys(properties)
 
         const newCtx = Object.assign({
-            howDeepIsYourLove: 1,
+            tabs: tabs + 1,
             schema: schema
         }, ctx)
 
         const interfaceProperties = propertyNames.map((propertyName) => {
                 const property = properties[propertyName]
                 const types = property.types.map((type) => typeToTsPropertyConverter.convert(type, newCtx))
-                return `    ${getPropertyName(property, newCtx)}${property.isRequired ? "" : "?"}: ${types.join(" | ")}`
+                return `${"    ".repeat(tabs + 1)}${getPropertyName(property, newCtx)}${property.isRequired ? "" : "?"}: ${types.join(" | ")}`
             }
         )
 
         result = result.replace(/{{properties}}/g, interfaceProperties.join("\n"))
+
+        ctx.hasErrors = ctx.hasErrors || newCtx.hasErrors
+
+        return result
+    }
+
+    public generateMetadata(schema: Schema, allSchemas: AllSchemas, ctx: InterfaceGeneratorContext): string {
+        let result: string = this.metadataTemplate.slice()
+        if (ctx.tabs) {
+            result = result.split("\n").map((item) => "    ".repeat(ctx.tabs) + item).join("\n")
+        }
+
+        const {properties} = schema
+        const propertyNames = Object.keys(properties)
+
+        const newCtx = Object.assign({
+            tabs: (ctx.tabs || 0) + 1,
+            schema: schema
+        }, ctx)
+
+        // {{name}}
+        result = result.replace(/{{name}}/g, schema.name)
 
         // {{emptyModelFields}}
         const requiredFields = propertyNames
@@ -80,7 +88,10 @@ export class InterfaceGenerator {
         const fieldsMetadata = propertyNames
             .map((propertyName) => {
                 const property = properties[propertyName]
-                let template = this.metadataTemplate.slice()
+                let template = this.metadataFieldTemplate.slice()
+                const tabs = newCtx.tabs + 1
+                template = template.split("\n").map((item) => "    ".repeat(tabs + 1) + item).join("\n")
+
                 template = template.replace(/{{name}}/g, getPropertyName(property, newCtx))
                 template = template.replace(/{{types}}/g, this.getPropertyMetadataTypes(property))
                 template = template.replace(/{{subType}}/g, this.getPropertyMetadataSubType(property))
@@ -90,9 +101,9 @@ export class InterfaceGenerator {
             })
             .join("")
 
-        result = result.replace(/{{fieldsMetadata}}/g, fieldsMetadata)
-
         ctx.hasErrors = ctx.hasErrors || newCtx.hasErrors
+
+        result = result.replace(/{{fieldsMetadata}}/g, fieldsMetadata)
 
         return result
     }
@@ -120,8 +131,6 @@ export class InterfaceGenerator {
         return ""
     }
 }
-
-
 
 export function getPropertyName(property: ObjectProperty, ctx: TypeToTsPropertyConverterContext) {
     if (property.types.find((type) => type.basicType === BasicType.LINK)) {
