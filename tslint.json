@@ -1,5 +1,6 @@
 {
   "extends": "tslint-config-airbnb",
+  "linebreak-style": [true, "LF"],
   "rules": {
     "max-line-length": [
       true,

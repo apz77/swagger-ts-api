@@ -35,6 +35,7 @@ export interface SwaggerMethod {
       'application/json'?: {
         schema: SwaggerSchema,
       },
+      'multipart/mixed'?: {},
     },
   };
   responses: {
@@ -43,6 +44,8 @@ export interface SwaggerMethod {
         'application/json'?: {
           schema: SwaggerSchema,
         },
+        'image/png'?: {},
+        'image/jpeg'?: {},
       },
     },
   };
@@ -139,10 +142,14 @@ export interface Method {
   description: string;
   summary: string;
   request: Schema | null;
-  response: Schema | null;
+  response: Schema | 'link' | null;
 }
 
 // Methods are grouped by a tag (key === tag)
 export interface Paths {
   [key: string]: Method[];
+}
+
+export function isEmptyModel(schema: Schema | any) {
+  return !schema || (Object(schema) === schema && Object.keys(schema.properties).length === 0);
 }

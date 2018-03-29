@@ -3,6 +3,7 @@ import {
     PropertyType, Schema,
 } from '../types';
 import { getPropertyName, InterfaceGeneratorContext } from './interfaceGenerator';
+import { tabsStub } from './tsInterfacesStub';
 
 export interface TypeToTsPropertyConverterContext extends InterfaceGeneratorContext {
   schema: Schema;
@@ -44,7 +45,7 @@ export class TypeToTsPropertyConverter {
       case BasicType.MODELID: return 'string';
       case BasicType.ARRAY: return `Array<${this.convert((type as ArrayType).arrayType, nextCtx)}>`;
       case BasicType.OBJECT: return this.convertObject(type as ObjectType, nextCtx);
-      case BasicType.ENUM: return (type as EnumType).values.map((val) => `"${val}"`).join(' | ');
+      case BasicType.ENUM: return (type as EnumType).values.map(val => `"${val}"`).join(' | ');
       case BasicType.LINK: if (this.allSchemas[(type as LinkType).linkTo]) {
         return (type as LinkType).linkTo;
       }
@@ -63,10 +64,10 @@ export class TypeToTsPropertyConverter {
     const objectInterface = Object.keys(properties).map((propertyName: string) => {
             const property = properties[propertyName];
             const types = property.types.map(subType => this.convert(subType, ctx));
-            return `${'    '.repeat(ctx.tabs + 1)}` +
+            return `${tabsStub.repeat(ctx.tabs + 1)}` +
               `${getPropertyName(property, ctx)}${property.isRequired ? '' : '?'}: ${types.join(' | ')}`;
         }).join('\n');
 
-    return `{\n${objectInterface}\n${'    '.repeat(ctx.tabs)}}`;
+    return `{\n${objectInterface}\n${tabsStub.repeat(ctx.tabs)}}`;
   }
 }

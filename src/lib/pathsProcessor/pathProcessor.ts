@@ -1,4 +1,4 @@
-import { HttpMethods, Method, SwaggerMethod } from '../types';
+import { HttpMethods, Method, Schema, SwaggerMethod } from "../types";
 import { SchemaFactory } from '../schemaProcessor/schema';
 
 
@@ -52,7 +52,7 @@ export class PathProcessor {
       }
     }
 
-    let responseSchema = null;
+    let responseSchema: Schema | 'link' | null = null;
 
     if (!swaggerMethod.responses) {
       console.error(`Method ${method} ${methodUrl} has no 200 response schema`);
@@ -66,12 +66,16 @@ export class PathProcessor {
       } else {
                 // Because of bug in TypeScript
         const appjson = r200.content['application/json'];
-        if (!appjson || ! appjson.schema) {
-          console.error(`Method ${method} ${methodUrl} has no 200 response schema`);
-          ctx.hasErrors = true;
+        if (!appjson || !appjson.schema) {
+          if (r200.content['image/jpeg'] || r200.content['image/png']) {
+            responseSchema = 'link';
+          } else {
+            console.error(`Method ${method} ${methodUrl} has no 200 response schema`);
+            ctx.hasErrors = true;
+          }
         } else {
           responseSchema = this.schemaFactory.translateSchema(
-                        `${tag}${capitalizedName}Request`,
+                        `${tag}${capitalizedName}Response`,
                         appjson.schema,
                         ctx);
         }
@@ -81,8 +85,8 @@ export class PathProcessor {
     return {
       name,
       tag,
-      url: methodUrl,
       method,
+      url: methodUrl,
       description: swaggerMethod.description || '',
       summary: swaggerMethod.summary || '',
       request: requestSchema,

@@ -1,7 +1,7 @@
 import { InterfaceGenerator } from './interfaceGenerator';
 import { MethodGenerator } from './methodGenerator';
-import { AllSchemas, Method } from '../types';
-import { defaultMethodTemplate, defaultModuleTemplate } from './tsInterfacesStub';
+import { AllSchemas, isEmptyModel, Method } from '../types';
+import { defaultMethodTemplate, defaultModuleTemplate, tabsStub } from './tsInterfacesStub';
 
 export interface ModuleGeneratorContext {
   hasErrors: boolean;
@@ -28,52 +28,56 @@ export class ModuleGenerator {
                         ctx: ModuleGeneratorContext): string {
     let result = this.moduleTemplate.slice();
     const tabs = typeof ctx.tabs === 'number' ? ctx.tabs : 0;
-    if (tabs) {
-      result = result.split('\n').map((item) => '    '.repeat(tabs) + item).join('\n');
-    }
 
     const allMethods = methods.map((method) => {
-            let methodResult = this.methodTemplate.slice();
-            const tabs = ctx.tabs ? ctx.tabs + 1 : 1;
-            methodResult = methodResult.split('\n').map((item) => '    '.repeat(tabs) + item).join('\n');
-            const newCtx = {
-                ...ctx,
-                tabs: tabs + 1,
-            };
+          let methodResult = this.methodTemplate.slice();
 
-            // {{method}}
-            methodResult = methodResult.replace(
-                /{{method}}/g,
-                this.methodGenerator.generateMethod(method),
-            );
+          const newCtx = {
+              ...ctx,
+              tabs: tabs + 1,
+          };
 
-            // {{requestInterface}}
-            methodResult = methodResult.replace(
-                /{{requestInterface}}/g,
-                method.request ? this.interfaceGenerator.generate(method.request, allSchemas, newCtx) : '',
-            );
+          // {{method}}
+          methodResult = methodResult.replace(
+              /{{method}}/g,
+              this.methodGenerator.generateMethod(method, newCtx),
+          );
 
-            // {{responseInterface}}
-            methodResult = methodResult.replace(
-                /{{responseInterface}}/g,
-                method.response ? this.interfaceGenerator.generate(method.response, allSchemas, newCtx) : '',
-            );
+          // {{requestInterface}}
+          methodResult = methodResult.replace(
+              /{{requestInterface}}/g,
+              !isEmptyModel(method.request) && method.request
+                ? this.interfaceGenerator.generate(method.request, allSchemas, newCtx)
+                : '',
+          );
 
-            // {{requestMetadata}}
-            methodResult = methodResult.replace(
-                /{{requestMetadata}}/g,
-                method.request ? this.interfaceGenerator.generateMetadata(method.request, allSchemas, newCtx) : '',
-            );
+          // {{responseInterface}}
+          methodResult = methodResult.replace(
+              /{{responseInterface}}/g,
+              !isEmptyModel(method.response) && method.response && method.response !== 'link'
+                ? this.interfaceGenerator.generate(method.response, allSchemas, newCtx)
+                : '',
+          );
 
-            // {{responseMetadata}}
-            methodResult = methodResult.replace(
-                /{{responseMetadata}}/g,
-                method.response ? this.interfaceGenerator.generateMetadata(method.response, allSchemas, newCtx) : '',
-            );
+          // {{requestMetadata}}
+          methodResult = methodResult.replace(
+              /{{requestMetadata}}/g,
+              !isEmptyModel(method.request) && method.request
+                ? this.interfaceGenerator.generateMetadata(method.request, allSchemas, newCtx)
+                : '',
+          );
 
-            ctx.hasErrors = ctx.hasErrors || newCtx.hasErrors;
+          // {{responseMetadata}}
+          methodResult = methodResult.replace(
+              /{{responseMetadata}}/g,
+              !isEmptyModel(method.response) && method.response && method.response !== 'link'
+                ? this.interfaceGenerator.generateMetadata(method.response, allSchemas, newCtx)
+                : '',
+          );
 
-            return methodResult;
+          ctx.hasErrors = ctx.hasErrors || newCtx.hasErrors;
+
+          return methodResult;
         }).join('\n');
 
     result = result.replace(
@@ -81,11 +85,15 @@ export class ModuleGenerator {
             moduleName,
         );
 
-        // {{allMethods}}
+    // {{allMethods}}
     result = result.replace(
             /{{allMethods}}/g,
             allMethods,
         );
+
+    if (tabs) {
+      result = result.split('\n').map(item => tabsStub.repeat(tabs) + item).join('\n');
+    }
 
     return result;
   }
