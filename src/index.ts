@@ -11,7 +11,11 @@ import { MethodGenerator } from './lib/tsGenerators/methodGenerator';
 import { ModuleGenerator } from './lib/tsGenerators/moduleGenerator';
 import { FileGenerator } from './lib/tsGenerators/fileGenerator';
 import * as fs from 'fs';
+import * as rimraf from 'rimraf';
 
+export function clearDirectory(dir: string, callback: (error: Error) => void) {
+  rimraf(dir, callback);
+}
 
 /**
  * Creates ts files to work with API

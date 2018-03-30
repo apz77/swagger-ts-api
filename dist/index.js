@@ -20,6 +20,11 @@ var methodGenerator_1 = require("./lib/tsGenerators/methodGenerator");
 var moduleGenerator_1 = require("./lib/tsGenerators/moduleGenerator");
 var fileGenerator_1 = require("./lib/tsGenerators/fileGenerator");
 var fs = require("fs");
+var rimraf = require("rimraf");
+function clearDirectory(dir, callback) {
+    rimraf(dir, callback);
+}
+exports.clearDirectory = clearDirectory;
 /**
  * Creates ts files to work with API
  * @param {string} filesPath - filesystem path to put files into
