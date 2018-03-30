@@ -20,6 +20,7 @@ export class BasicTypeProcessor implements TypeProcessor {
     email: BasicType.EMAIL,
     json: BasicType.JSON,
     binary: BasicType.BLOB,
+    uuid: BasicType.UUID,
   };
 
   consume(swaggerSchemaProperty: SwaggerSchemaProperty,
@@ -48,8 +49,8 @@ export class BasicTypeProcessor implements TypeProcessor {
       } else {
         ctx.hasErrors = true;
         return getErrorType(
-                    `Property ${name} has format ${swaggerSchemaProperty.format}, but not string|null type ${typeName}`,
-                );
+          `Property ${name} has format ${swaggerSchemaProperty.format}, but not string|null type ${typeName}`,
+        );
       }
     }
 

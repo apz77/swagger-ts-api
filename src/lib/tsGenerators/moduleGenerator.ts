@@ -34,6 +34,7 @@ export class ModuleGenerator {
 
           const newCtx = {
               ...ctx,
+              isResponse: false,
               tabs: tabs + 1,
           };
 
@@ -64,7 +65,7 @@ export class ModuleGenerator {
           methodResult = methodResult.replace(
               /{{responseInterface}}/g,
               !isEmptyModel(method.response) && method.response && method.response !== 'link'
-                ? this.interfaceGenerator.generate(method.response, allSchemas, newCtx) + '\n'
+                ? this.interfaceGenerator.generate(method.response, allSchemas, { ...newCtx, isResponse: true }) + '\n'
                 : '',
           );
 
@@ -89,7 +90,7 @@ export class ModuleGenerator {
           methodResult = methodResult.replace(
               /{{responseMetadata}}/g,
               !isEmptyModel(method.response) && method.response && method.response !== 'link'
-                ? this.interfaceGenerator.generateMetadata(method.response, allSchemas, newCtx) + '\n'
+                ? this.interfaceGenerator.generateMetadata(method.response, allSchemas, { ...newCtx, isResponse: true }) + '\n'
                 : '',
           );
 

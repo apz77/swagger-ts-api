@@ -31,7 +31,9 @@ export class LinkTypeProcessor implements TypeProcessor {
       } else {
         if (name.length > 2 && name.substr(-2) === 'Id' && name !== 'emailId') {
           ctx.hasErrors = true;
-          return getErrorType(`x-metadata with schema required for Link type.`);
+          return getErrorType(
+            `x-metadata with schema required for Link type. ${JSON.stringify(swaggerSchemaProperty)}`
+          );
         }
       }
     }

@@ -39,7 +39,7 @@ export const defaultBaseTypesDefinition =
     '}\n';
 
 export const defaultInterfaceTemplate =
-    'export interface {{name}} extends BaseModel {\n' +
+    'export interface {{name}} extends Api.BaseModel {\n' +
     '{{properties}}\n' +
     '}\n' +
     '\n';
@@ -79,12 +79,12 @@ export const methodStub =
   '      body: {{body}},\n' +
   '      method: \'{{httpMethod}}\',\n' +
   '      credentials: \'include\',\n' +
-  '    }\n' +
+  '    },\n' +
   '  ).then(response => \n' +
   '     response.headers.has(\'Content-Type\') &&\n' +
   '     response.headers.get(\'Content-Type\').indexOf(\'application/json\') > -1\n' +
   '       ? response.json()\n' +
-  '       : response.text()\n' +
+  '       : response.text(),\n' +
   '  );\n' +
   '};\n'
 
@@ -110,12 +110,15 @@ export const defaultModuleTemplate =
     '}\n';
 
 export const defaultFileTemplate =
-  'import * from \'api.ts\';\n' +
+  'import * as Api from \'api\';\n' +
   '\n' +
   '{{interface}}' +
   '{{module}}\n'
 
 export const defaultIndexTemplate =
-  'export * from \'../baseTypes.ts\';\n' +
+  '/* tslint:disable */\n\n' +
+  '/* Please define in ../baseTypes.ts the following types, const, and function: */\n' +
+  '/* BaseModel, UUID, Email, Hostname, DateTime, DateOnly, Duration, Permit, API_URL, setParams */\n' +
+  'export * from \'../baseTypes\';\n\n' +
   '{{files}}\n' +
   '{{commonTypes}}\n'

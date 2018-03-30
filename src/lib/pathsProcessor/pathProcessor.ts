@@ -37,8 +37,7 @@ export class PathProcessor {
 
     if (!swaggerMethod.requestBody ||
             !swaggerMethod.requestBody.content) {
-      console.error(`Method ${method} ${methodUrl} has no request body schema`);
-      ctx.hasErrors = true;
+      console.warn(`Method ${method} ${methodUrl} has no request body schema`);
     } else {
 
       // Because of BUG in TypeScript
@@ -46,8 +45,7 @@ export class PathProcessor {
       const form = swaggerMethod.requestBody.content['multipart/mixed'];
 
       if ((!appjson || !appjson.schema) && (!form || !form.schema))  {
-        console.error(`Method ${method} ${methodUrl} has no request body schema`);
-        ctx.hasErrors = true;
+        console.warn(`Method ${method} ${methodUrl} has no request body schema`);
       } else {
         if (appjson && appjson.schema) {
           requestSchema = this.schemaFactory.translateSchema(
@@ -69,23 +67,20 @@ export class PathProcessor {
     let responseSchema: Schema | 'link' | null = null;
 
     if (!swaggerMethod.responses) {
-      console.error(`Method ${method} ${methodUrl} has no 200 response schema`);
-      ctx.hasErrors = true;
+      console.warn(`Method ${method} ${methodUrl} has no response`);
     } else {
       // Because of bug in TypeScript
       const r200 = swaggerMethod.responses['200'];
       if (!r200 || !r200.content) {
-        console.error(`Method ${method} ${methodUrl} has no 200 response schema`);
-        ctx.hasErrors = true;
+        console.warn(`Method ${method} ${methodUrl} has no 200 response`);
       } else {
         // Because of bug in TypeScript
         const appjson = r200.content['application/json'];
         if (!appjson || !appjson.schema) {
-          if (r200.content['image/jpeg'] || r200.content['image/png']) {
+          if (r200.content['image/jpeg'] || r200.content['image/png'] || r200.content['*/*']) {
             responseSchema = 'link';
           } else {
-            console.error(`Method ${method} ${methodUrl} has no 200 response schema`);
-            ctx.hasErrors = true;
+            console.warn(`Method ${method} ${methodUrl} has no 200 response schema`);
           }
         } else {
           responseSchema = this.schemaFactory.translateSchema(

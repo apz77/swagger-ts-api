@@ -9,7 +9,9 @@ export class ArrayTypeProcessor implements TypeProcessor {
           typeName: string,
           ctx: TypeProcessorContext): PropertyType | null {
     if (typeName === 'array') {
-      const metadata = swaggerSchemaProperty['x-metadata'];
+      const metadata = swaggerSchemaProperty['x-metadata'] ||
+        (swaggerSchemaProperty.items && swaggerSchemaProperty.items['x-metadata']);
+
       if (metadata && metadata.schema) {
         return {
           basicType: BasicType.ARRAY,
@@ -25,7 +27,7 @@ export class ArrayTypeProcessor implements TypeProcessor {
         };
       } else {
         ctx.hasErrors = true;
-        return getErrorType(`No item for array type defined.`);
+        return getErrorType(`No item for array type defined. ${JSON.stringify(swaggerSchemaProperty, null, 2)}`);
       }
     }
 

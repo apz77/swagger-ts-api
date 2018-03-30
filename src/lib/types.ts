@@ -48,6 +48,7 @@ export interface SwaggerMethod {
         },
         'image/png'?: {},
         'image/jpeg'?: {},
+        '*/*'?: {},
       },
     },
   };
@@ -84,6 +85,7 @@ export enum BasicType {
     MODELTYPE = 'ModelType',
     MODELID = 'ModelId',
     BLOB = 'Blob',
+    UUID = 'UUID',
 
     // Specific types
     ARRAY = 'array',

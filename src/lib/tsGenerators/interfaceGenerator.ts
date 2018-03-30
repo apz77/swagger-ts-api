@@ -9,6 +9,7 @@ import {
 
 export interface InterfaceGeneratorContext {
   hasErrors: boolean;
+  isResponse: boolean;
   tabs: number;
 }
 
@@ -17,6 +18,7 @@ export class InterfaceGenerator {
   protected template: string;
   protected metadataFieldTemplate: string;
   protected metadataTemplate: string;
+  protected apiPrefix = 'Api.';
 
   constructor(template?: string, metadataTemplate?: string, metadataFieldTemplate?: string) {
     this.template = template || defaultInterfaceTemplate;
@@ -41,18 +43,17 @@ export class InterfaceGenerator {
     const { properties } = schema;
     const propertyNames = Object.keys(properties);
 
-    const newCtx = Object.assign(
-      {
-        ctx,
-        schema,
-        tabs: tabs + 1,
-      },
-      ctx,
-    );
+    const newCtx = {
+      ...ctx,
+      schema,
+      tabs: tabs + 1,
+    };
 
     const interfaceProperties = propertyNames.map((propertyName) => {
       const property = properties[propertyName];
-      const types = property.types.map(type => typeToTsPropertyConverter.convert(type, newCtx));
+      const types = property.types.map(
+        type => typeToTsPropertyConverter.convert(type, this.apiPrefix, { ...newCtx, tabs: 1 }),
+      );
       return `${tabsStub}${getPropertyName(property, newCtx)}${property.isRequired ? '' : '?'}: ` +
        `${types.join(' | ')}`;
     });
@@ -148,10 +149,17 @@ export class InterfaceGenerator {
 
 export function getPropertyName(property: ObjectProperty, ctx: TypeToTsPropertyConverterContext) {
   if (property.types.find(type => type.basicType === BasicType.LINK)) {
-    if (property.name.substr(-2) === 'Id') {
+
+    if (ctx.isResponse || property.name.substr(-2) === 'Id') {
+
       return property.name.substr(0, property.name.length - 2);
+
+    } else if (property.name.indexOf('Id') >= 0) {
+
+      console.warn(`Property ${ctx.schema.name}.${property.name} is a link, but does not end with Id.`);
+      return property.name.replace('Id', '');
     }
-    console.log(`Property ${ctx.schema.name}.${property.name} is a link, but does not end with Id.`);
+    console.warn(`Property ${ctx.schema.name}.${property.name} is a link, but does not end with Id.`);
   }
   return property.name;
 }

@@ -115,6 +115,7 @@ export function generateTypescriptIntefacesWithMetadata(
 
   const newCtx = {
     ...ctx,
+    isResponse: false,
     tabs: 0,
   };
 

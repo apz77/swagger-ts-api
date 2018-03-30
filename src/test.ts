@@ -33,6 +33,8 @@ request('http://127.0.0.1:3001/docs/swagger.json', (error: any, response: any, b
       generateTypeScriptFiles(outDir + '/' ,schemasAndPaths.paths, schemasAndPaths.schemas, ctx);
     }
 
+    fs.appendFileSync(schemaOutFile, JSON.stringify(schemasAndPaths, null, 2));
+
     console.log(ctx.hasErrors ? 'Some errors occured during swagger translation' : 'All is good');
     console.log(`Check TS results in ${interfacesOutFile}`);
     console.log(`Swagger parsing result in ${schemaOutFile}`);
