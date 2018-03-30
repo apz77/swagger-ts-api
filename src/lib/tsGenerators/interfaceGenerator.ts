@@ -43,6 +43,7 @@ export class InterfaceGenerator {
 
     const newCtx = Object.assign(
       {
+        ctx,
         schema,
         tabs: tabs + 1,
       },
@@ -52,7 +53,7 @@ export class InterfaceGenerator {
     const interfaceProperties = propertyNames.map((propertyName) => {
       const property = properties[propertyName];
       const types = property.types.map(type => typeToTsPropertyConverter.convert(type, newCtx));
-      return `${tabsStub.repeat(tabs)}${getPropertyName(property, newCtx)}${property.isRequired ? '' : '?'}: ` +
+      return `${tabsStub}${getPropertyName(property, newCtx)}${property.isRequired ? '' : '?'}: ` +
        `${types.join(' | ')}`;
     });
 

@@ -33,22 +33,36 @@ export class PathProcessor {
     const capitalizedName = name.charAt(0).toLocaleUpperCase() + name.slice(1);
 
     let requestSchema = null;
+    let requestForm = null;
 
     if (!swaggerMethod.requestBody ||
             !swaggerMethod.requestBody.content) {
       console.error(`Method ${method} ${methodUrl} has no request body schema`);
       ctx.hasErrors = true;
     } else {
-            // Because of BUG in TypeScript
+
+      // Because of BUG in TypeScript
       const appjson = swaggerMethod.requestBody.content['application/json'];
-      if (!appjson || !appjson.schema) {
+      const form = swaggerMethod.requestBody.content['multipart/mixed'];
+
+      if ((!appjson || !appjson.schema) && (!form || !form.schema))  {
         console.error(`Method ${method} ${methodUrl} has no request body schema`);
         ctx.hasErrors = true;
       } else {
-        requestSchema = this.schemaFactory.translateSchema(
-                    `${tag}${capitalizedName}Request`,
-                    appjson.schema,
-                    ctx);
+        if (appjson && appjson.schema) {
+          requestSchema = this.schemaFactory.translateSchema(
+            `${tag}${capitalizedName}Request`,
+            appjson.schema,
+            ctx,
+          );
+        }
+        if (form && form.schema) {
+          requestForm = this.schemaFactory.translateSchema(
+            `${tag}${capitalizedName}Form`,
+            form.schema,
+            ctx,
+          );
+        }
       }
     }
 
@@ -58,13 +72,13 @@ export class PathProcessor {
       console.error(`Method ${method} ${methodUrl} has no 200 response schema`);
       ctx.hasErrors = true;
     } else {
-            // Because of bug in TypeScript
+      // Because of bug in TypeScript
       const r200 = swaggerMethod.responses['200'];
       if (!r200 || !r200.content) {
         console.error(`Method ${method} ${methodUrl} has no 200 response schema`);
         ctx.hasErrors = true;
       } else {
-                // Because of bug in TypeScript
+        // Because of bug in TypeScript
         const appjson = r200.content['application/json'];
         if (!appjson || !appjson.schema) {
           if (r200.content['image/jpeg'] || r200.content['image/png']) {
@@ -90,6 +104,7 @@ export class PathProcessor {
       description: swaggerMethod.description || '',
       summary: swaggerMethod.summary || '',
       request: requestSchema,
+      form: requestForm,
       response: responseSchema,
     };
   }

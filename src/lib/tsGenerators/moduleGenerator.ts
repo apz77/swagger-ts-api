@@ -1,7 +1,7 @@
 import { InterfaceGenerator } from './interfaceGenerator';
 import { MethodGenerator } from './methodGenerator';
 import { AllSchemas, isEmptyModel, Method } from '../types';
-import { defaultMethodTemplate, defaultModuleTemplate, tabsStub } from './tsInterfacesStub';
+import { defaultModuleMethodTemplate, defaultModuleTemplate, tabsStub } from './tsInterfacesStub';
 
 export interface ModuleGeneratorContext {
   hasErrors: boolean;
@@ -18,14 +18,14 @@ export class ModuleGenerator {
               methodTemplate?: string,
               moduleTemplate?: string) {
 
-    this.methodTemplate = methodTemplate || defaultMethodTemplate;
+    this.methodTemplate = methodTemplate || defaultModuleMethodTemplate;
     this.moduleTemplate = moduleTemplate || defaultModuleTemplate;
   }
 
-  public generateModule(moduleName: string,
-                        methods: Method[],
-                        allSchemas: AllSchemas,
-                        ctx: ModuleGeneratorContext): string {
+  public generate(moduleName: string,
+                  methods: Method[],
+                  allSchemas: AllSchemas,
+                  ctx: ModuleGeneratorContext): string {
     let result = this.moduleTemplate.slice();
     const tabs = typeof ctx.tabs === 'number' ? ctx.tabs : 0;
 
@@ -40,22 +40,31 @@ export class ModuleGenerator {
           // {{method}}
           methodResult = methodResult.replace(
               /{{method}}/g,
-              this.methodGenerator.generateMethod(method, newCtx),
+              this.methodGenerator.generateMethod(method, newCtx) + '\n',
           );
 
           // {{requestInterface}}
           methodResult = methodResult.replace(
               /{{requestInterface}}/g,
               !isEmptyModel(method.request) && method.request
-                ? this.interfaceGenerator.generate(method.request, allSchemas, newCtx)
+                ? this.interfaceGenerator.generate(method.request, allSchemas, newCtx) + '\n'
                 : '',
           );
+
+          // {{requestInterface}}
+          methodResult = methodResult.replace(
+            /{{formInterface}}/g,
+            !isEmptyModel(method.form) && method.form
+              ? this.interfaceGenerator.generate(method.form, allSchemas, newCtx) + '\n'
+              : '',
+          );
+
 
           // {{responseInterface}}
           methodResult = methodResult.replace(
               /{{responseInterface}}/g,
               !isEmptyModel(method.response) && method.response && method.response !== 'link'
-                ? this.interfaceGenerator.generate(method.response, allSchemas, newCtx)
+                ? this.interfaceGenerator.generate(method.response, allSchemas, newCtx) + '\n'
                 : '',
           );
 
@@ -63,15 +72,24 @@ export class ModuleGenerator {
           methodResult = methodResult.replace(
               /{{requestMetadata}}/g,
               !isEmptyModel(method.request) && method.request
-                ? this.interfaceGenerator.generateMetadata(method.request, allSchemas, newCtx)
+                ? this.interfaceGenerator.generateMetadata(method.request, allSchemas, newCtx) + '\n'
                 : '',
           );
+
+          // {{formMetadata}}
+          methodResult = methodResult.replace(
+            /{{formMetadata}}/g,
+            method.form &&!isEmptyModel(method.form)
+              ? this.interfaceGenerator.generateMetadata(method.form, allSchemas, newCtx) + '\n'
+              : '',
+          );
+
 
           // {{responseMetadata}}
           methodResult = methodResult.replace(
               /{{responseMetadata}}/g,
               !isEmptyModel(method.response) && method.response && method.response !== 'link'
-                ? this.interfaceGenerator.generateMetadata(method.response, allSchemas, newCtx)
+                ? this.interfaceGenerator.generateMetadata(method.response, allSchemas, newCtx) + '\n'
                 : '',
           );
 

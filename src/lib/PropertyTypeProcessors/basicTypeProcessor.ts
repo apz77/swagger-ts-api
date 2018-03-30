@@ -19,6 +19,7 @@ export class BasicTypeProcessor implements TypeProcessor {
     hostname: BasicType.HOSTNAME,
     email: BasicType.EMAIL,
     json: BasicType.JSON,
+    binary: BasicType.BLOB,
   };
 
   consume(swaggerSchemaProperty: SwaggerSchemaProperty,

@@ -9,7 +9,101 @@ import { PathsProcessor } from './lib/pathsProcessor/pathsProcessor';
 import { PathProcessor } from './lib/pathsProcessor/pathProcessor';
 import { MethodGenerator } from './lib/tsGenerators/methodGenerator';
 import { ModuleGenerator } from './lib/tsGenerators/moduleGenerator';
+import { FileGenerator } from './lib/tsGenerators/fileGenerator';
+import * as fs from 'fs';
 
+
+/**
+ * Creates ts files to work with API
+ * @param {string} filesPath - filesystem path to put files into
+ * @param {Paths} paths - parsed swagger method paths
+ * @param {AllSchemas} schemas - parsed swagger all schemas
+ * @param {{hasErrors: boolean}} ctx
+ */
+export function generateTypeScriptFiles(filesPath: string,
+                                        paths: Paths,
+                                        schemas: AllSchemas,
+                                        ctx: {hasErrors: boolean}): void {
+
+  const methodToTsGenerator = new MethodGenerator();
+  const interfaceGenerator = new InterfaceGenerator();
+  const moduleGenerator = new ModuleGenerator(interfaceGenerator, methodToTsGenerator);
+  const fileGenerator = new FileGenerator(moduleGenerator, interfaceGenerator);
+
+  const tags = [
+    ...Object.keys(paths),
+    ...Object.keys(schemas),
+  ].filter((value, index, array) => array.indexOf(value) === index);
+
+  for (const tag of tags) {
+    const filename = filesPath + fileGenerator.getFileName(tag) + '.ts';
+    const fileContent = fileGenerator.generate(paths, schemas, tag, ctx);
+
+    if (fs.existsSync(filename)) {
+      fs.unlinkSync(filename);
+    }
+
+    fs.appendFileSync(filename, fileContent);
+  }
+
+  const indexFile = filesPath + fileGenerator.getIndexFileName() + '.ts';
+  const indexFileContent = fileGenerator.generateIndex(schemas, tags);
+
+  if (fs.existsSync(indexFile)) {
+    fs.unlinkSync(indexFile);
+  }
+
+  fs.appendFileSync(indexFile, indexFileContent);
+}
+
+
+/**
+ * Parses swagger doc json file into inner format
+ * @param swaggerResponse - swagger doc in json format
+ * @param {SchemaFactoryContext} ctx
+ * @return {{schemas: AllSchemas; paths: Paths} | null}
+ */
+export function parseSwagger(swaggerResponse: any, ctx: SchemaFactoryContext):
+  {schemas: AllSchemas, paths: Paths} | null {
+  if (swaggerResponse instanceof Object &&
+    swaggerResponse.components instanceof Object &&
+    swaggerResponse.components.schemas instanceof Object &&
+    swaggerResponse.paths instanceof Object) {
+    const schemaFactory = new SchemaFactory(
+      new SchemaPropertyFactory(
+        [
+          new DefaultPropertyProcessor(
+            new TypeFactory(defaultTypeProcessors),
+          ),
+        ],
+      ),
+    );
+
+    const schemas: AllSchemas = {};
+
+
+    for (const schemaName in swaggerResponse.components.schemas) {
+      schemas[schemaName] = schemaFactory.translateSchema(
+        schemaName,
+        swaggerResponse.components.schemas[schemaName],
+        ctx,
+      );
+    }
+
+    const pathsProcessor = new PathsProcessor(new PathProcessor(schemaFactory));
+
+    return {
+      schemas,
+      paths: pathsProcessor.translatePaths(swaggerResponse.paths as SwaggerPaths, ctx),
+    };
+  }
+
+  console.error(`Swagger response is not corect one.`);
+
+  return null;
+}
+
+// Some other helper files
 
 export function generateTypescriptIntefacesWithMetadata(
     schemas: AllSchemas,
@@ -38,7 +132,7 @@ export function generateTypescriptIntefacesWithMetadata(
         interfaces.join('\n');
 }
 
-export function generateTypeScriptModule(paths: Paths, allSchemas: AllSchemas, ctx: {hasErrors: boolean}) {
+export function generateTypeScriptModule(paths: Paths, schemas: AllSchemas, ctx: {hasErrors: boolean}) {
 
   const methodToTsGenerator = new MethodGenerator();
   const interfaceGenerator = new InterfaceGenerator();
@@ -46,46 +140,6 @@ export function generateTypeScriptModule(paths: Paths, allSchemas: AllSchemas, c
 
 
   return Object.keys(paths).map((moduleName) => {
-    return moduleGenerator.generateModule(moduleName, paths[moduleName], allSchemas, ctx);
+    return moduleGenerator.generate(moduleName, paths[moduleName], schemas, ctx);
   }).join('\n');
-}
-
-export function parseSwagger(swaggerResponse: any, ctx: SchemaFactoryContext):
-    {schemas: AllSchemas, paths: Paths} | null {
-  if (swaggerResponse instanceof Object &&
-        swaggerResponse.components instanceof Object &&
-        swaggerResponse.components.schemas instanceof Object &&
-        swaggerResponse.paths instanceof Object) {
-    const schemaFactory = new SchemaFactory(
-            new SchemaPropertyFactory(
-              [
-                new DefaultPropertyProcessor(
-                        new TypeFactory(defaultTypeProcessors),
-                    ),
-              ],
-            ),
-        );
-
-    const schemas: AllSchemas = {};
-
-
-    for (const schemaName in swaggerResponse.components.schemas) {
-      schemas[schemaName] = schemaFactory.translateSchema(
-          schemaName,
-          swaggerResponse.components.schemas[schemaName],
-          ctx,
-      );
-    }
-
-    const pathsProcessor = new PathsProcessor(new PathProcessor(schemaFactory));
-
-    return {
-      schemas,
-      paths: pathsProcessor.translatePaths(swaggerResponse.paths as SwaggerPaths, ctx),
-    };
-  }
-
-  console.error(`Swagger response is not corect one.`);
-
-  return null;
 }

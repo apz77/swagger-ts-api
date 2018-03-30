@@ -35,7 +35,9 @@ export interface SwaggerMethod {
       'application/json'?: {
         schema: SwaggerSchema,
       },
-      'multipart/mixed'?: {},
+      'multipart/mixed'?: {
+        schema: SwaggerSchema,
+      },
     },
   };
   responses: {
@@ -81,6 +83,7 @@ export enum BasicType {
     JSON = 'json',
     MODELTYPE = 'ModelType',
     MODELID = 'ModelId',
+    BLOB = 'Blob',
 
     // Specific types
     ARRAY = 'array',
@@ -142,6 +145,7 @@ export interface Method {
   description: string;
   summary: string;
   request: Schema | null;
+  form: Schema | null;
   response: Schema | 'link' | null;
 }
 

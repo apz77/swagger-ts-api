@@ -26,6 +26,7 @@ export class TypeToTsPropertyConverter {
     [BasicType.FOLDERTYPE]: 'FolderType',
     [BasicType.INVITATIONSTATUS]: 'InvitationStatus',
     [BasicType.JSON]: 'string',
+    [BasicType.BLOB]: 'Blob',
   };
 
   constructor(protected allSchemas: AllSchemas) {}
@@ -35,17 +36,12 @@ export class TypeToTsPropertyConverter {
       return this.basicTypesMap[type.basicType];
     }
 
-    const nextCtx = {
-      ...ctx,
-      tabs: ctx.tabs + 1,
-    };
-
     switch (type.basicType) {
       case BasicType.MODELTYPE: return 'ModelTypes';
       case BasicType.MODELID: return 'string';
-      case BasicType.ARRAY: return `Array<${this.convert((type as ArrayType).arrayType, nextCtx)}>`;
-      case BasicType.OBJECT: return this.convertObject(type as ObjectType, nextCtx);
-      case BasicType.ENUM: return (type as EnumType).values.map(val => `"${val}"`).join(' | ');
+      case BasicType.ARRAY: return `(${this.convert((type as ArrayType).arrayType, ctx)})[]`;
+      case BasicType.OBJECT: return this.convertObject(type as ObjectType, ctx);
+      case BasicType.ENUM: return (type as EnumType).values.map(val => `'${val}'`).join(' | ');
       case BasicType.LINK: if (this.allSchemas[(type as LinkType).linkTo]) {
         return (type as LinkType).linkTo;
       }
@@ -61,13 +57,19 @@ export class TypeToTsPropertyConverter {
 
   protected convertObject(type: ObjectType, ctx: TypeToTsPropertyConverterContext) {
     const { properties } = type;
-    const objectInterface = Object.keys(properties).map((propertyName: string) => {
-            const property = properties[propertyName];
-            const types = property.types.map(subType => this.convert(subType, ctx));
-            return `${tabsStub.repeat(ctx.tabs + 1)}` +
-              `${getPropertyName(property, ctx)}${property.isRequired ? '' : '?'}: ${types.join(' | ')}`;
-        }).join('\n');
+    const tabs = ctx.tabs + 1;
+    const nextCtx = {
+      ...ctx,
+      tabs,
+    };
 
-    return `{\n${objectInterface}\n${tabsStub.repeat(ctx.tabs)}}`;
+    const objectInterface = Object.keys(properties).map((propertyName: string) => {
+        const property = properties[propertyName];
+        const types = property.types.map(subType => this.convert(subType, nextCtx));
+        return `${tabsStub.repeat(tabs + 1)}` +
+          `${getPropertyName(property, ctx)}${property.isRequired ? '' : '?'}: ${types.join(' | ')};`;
+      }).join('\n');
+
+    return `{\n${objectInterface}\n${tabsStub.repeat(tabs)}}`;
   }
 }

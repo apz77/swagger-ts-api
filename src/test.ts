@@ -1,17 +1,16 @@
 import * as request from 'request';
-import { generateTypescriptIntefacesWithMetadata, generateTypeScriptModule, parseSwagger } from './index';
+import {
+  generateTypeScriptFiles,
+  parseSwagger,
+} from './index';
 import * as fs from 'fs';
-import { InterfaceGenerator } from './lib/tsGenerators/interfaceGenerator';
+import * as rimraf from 'rimraf';
 
 const schemaOutFile = 'schema.json';
 const interfacesOutFile = 'models.ts';
 
 if (fs.existsSync(schemaOutFile)) {
   fs.unlinkSync(schemaOutFile);
-}
-
-if (fs.existsSync(interfacesOutFile)) {
-  fs.unlinkSync(interfacesOutFile);
 }
 
 request('http://127.0.0.1:3001/docs/swagger.json', (error: any, response: any, body: string) => {
@@ -24,19 +23,21 @@ request('http://127.0.0.1:3001/docs/swagger.json', (error: any, response: any, b
   };
 
   const schemasAndPaths = parseSwagger(responseJson, ctx);
+  const outDir = '../out';
 
-  if (schemasAndPaths) {
-    fs.appendFileSync(schemaOutFile, JSON.stringify(schemasAndPaths, null, 4));
+  rimraf(outDir, () => {
 
-        //const interfaceGenerator = new InterfaceGenerator()
-        //fs.appendFileSync(interfacesOutFile, interfaceGenerator.generate(schemasAndPaths.schemas["File"], schemasAndPaths.schemas, ctx))
-        //fs.appendFileSync(interfacesOutFile, generateTypescriptIntefacesWithMetadata(schemasAndPaths.schemas, ctx))
-    fs.appendFileSync(interfacesOutFile, generateTypeScriptModule(schemasAndPaths.paths, schemasAndPaths.schemas, ctx));
-  }
+    fs.mkdirSync(outDir);
 
-  console.log(ctx.hasErrors ? 'Some errors occured during swagger translation' : 'All is good');
-  console.log(`Check TS results in ${interfacesOutFile}`);
-  console.log(`Swagger parsing result in ${schemaOutFile}`);
+    if (schemasAndPaths) {
+      generateTypeScriptFiles(outDir + '/' ,schemasAndPaths.paths, schemasAndPaths.schemas, ctx);
+    }
+
+    console.log(ctx.hasErrors ? 'Some errors occured during swagger translation' : 'All is good');
+    console.log(`Check TS results in ${interfacesOutFile}`);
+    console.log(`Swagger parsing result in ${schemaOutFile}`);
+  });
+
 });
 
 

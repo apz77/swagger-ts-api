@@ -48,9 +48,9 @@ export const defaultMetadataTemplate =
     'export module {{name}}Metadata {\n' +
     '\n' +
     '  const type = \'{{name}}\';\n' +
-    '  const emptyModel: {{name}} = {{{emptyModelFields}}};\n' +
-    '\n' +
-    '  Object.freeze(emptyModel);\n' +
+//    '  const emptyModel: {{name}} = {{{emptyModelFields}}};\n' +
+//    '\n' +
+//    '  Object.freeze(emptyModel);\n' +
     '\n' +
     '  export module fields {\n' +
     '{{fieldsMetadata}}\n' +
@@ -63,16 +63,17 @@ export const defaultFieldMetadataTemplate =
     '  types: {{types}},\n' +
     '  subType: \'{{subType}}\',\n' +
     '  isRequired: {{isRequired}},\n' +
-    '  apiField: \'{{apiField}}\'\n' +
+    '  apiField: \'{{apiField}}\',\n' +
     '};';
 
 export const methodStub =
-  'export const {{methodName}} = ({{methodParam}}):\n' +
-  '  Promise<{{methodResultType}}> => {\n' +
+  'export const {{methodName}} = ({{methodParam}}): Promise<{{methodResultType}}> => {\n' +
   '\n' +
   '  const headers = { \'Content-Type\': \'application/json\' };\n' +
+  '{{formPrepare}}\n' +
   '  return fetch(\n' +
-  '    `${API_URL}${substituteParams(\'{{url}}\', {{methodParamName}}, {{methodParamMetadata}})}`,\n' +
+  '    API_URL +\n' +
+  '    {{url}},\n' +
   '    {\n' +
   '      headers,\n' +
   '      body: {{body}},\n' +
@@ -87,21 +88,34 @@ export const methodStub =
   '  );\n' +
   '};\n'
 
+
 export const linkMethodStub =
-  'export const {{methodName}} = ({{methodParam}}): string {\n' +
-  '  return `${API_URL}{{url}}`;\n' +
+  'export const {{methodName}} = ({{methodParam}}): string => {\n' +
+  '  return API_URL +\n' +
+  '    `{{url}}`;\n' +
   '};\n';
 
-export const defaultMethodTemplate =
-    '{{method}}\n' +
-    '{{requestInterface}}\n' +
-    '{{responseInterface}}\n' +
-    '{{requestMetadata}}\n' +
-    '{{responseMetadata}}\n';
+export const defaultModuleMethodTemplate =
+    '{{method}}' +
+    '{{requestInterface}}' +
+    '{{formInterface}}' +
+    '{{responseInterface}}' +
+    '{{requestMetadata}}' +
+    '{{formMetadata}}' +
+    '{{responseMetadata}}';
 
 export const defaultModuleTemplate =
     'export module {{ModuleName}} {\n' +
     '{{allMethods}}\n' +
     '}\n';
 
+export const defaultFileTemplate =
+  'import * from \'api.ts\';\n' +
+  '\n' +
+  '{{interface}}' +
+  '{{module}}\n'
 
+export const defaultIndexTemplate =
+  'export * from \'../baseTypes.ts\';\n' +
+  '{{files}}\n' +
+  '{{commonTypes}}\n'

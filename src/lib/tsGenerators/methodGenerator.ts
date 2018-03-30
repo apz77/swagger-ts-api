@@ -1,5 +1,5 @@
 import { Method, isEmptyModel } from '../types';
-import { linkMethodStub, methodStub, tabsStub } from "./tsInterfacesStub";
+import { linkMethodStub, methodStub, tabsStub } from './tsInterfacesStub';
 
 export interface MethodGeneratorContext {
   hasErrors: boolean;
@@ -16,15 +16,22 @@ export class MethodGenerator {
   }
 
   generateMethod(method: Method, ctx: MethodGeneratorContext): string {
-    let result = ''
+    let result = '';
     const paramName = 'request';
+    const paramFormName = 'form';
     const requestType = method.request && method.request.name;
-    const methodParam =  !isEmptyModel(method.request) ? `${paramName}: ${requestType}` : '';
+    const url = !isEmptyModel(method.request)
+      ? `setParams(\'${method.url}\', ${paramName}, ${requestType}Metadata)`
+      : `\'${method.url}\'`;
+    const paramsArray = [];
 
-    const url = '${substituteParams({{url}}, {{methodParamName}}, {{methodParamMetadata}})}'
+    if (!isEmptyModel(method.request)) {
+      paramsArray.push(`${paramName}: ${requestType}`);
+    }
 
     if (method.response && method.response === 'link') {
-      const methodParam =  !isEmptyModel(method.request) ? `${paramName}: ${requestType}` : '';
+
+      const methodParam = paramsArray.join(', ');
 
       result = this.linkMethodTemplate.slice();
       // {{methodName}}
@@ -33,19 +40,21 @@ export class MethodGenerator {
       // {{methodParam}}
       result = result.replace(/{{methodParam}}/g, methodParam);
 
-      // {{methodParam}}
-      result = result.replace(/{{methodParamName}}/g, paramName);
-
       // {{url}}
       result = result.replace(/{{url}}/g, url);
-
-      // {{methodParamMetadata}}
-      result = result.replace(/{{methodParamMetadata}}/g, `${requestType}Metadata`);
 
 
     } else {
       result = this.methodTemplate.slice();
       const resultType = (!isEmptyModel(method.response) && method.response && method.response.name) || 'void';
+      let methodFormType: string = '';
+
+      if (method.form && !isEmptyModel(method.form)) {
+        methodFormType = method.form.name
+        paramsArray.push(`${paramFormName}: ${methodFormType}`);
+      }
+
+      const methodParam = paramsArray.join(', ');
 
       // {{methodName}}
       result = result.replace(/{{methodName}}/g, method.name);
@@ -53,20 +62,32 @@ export class MethodGenerator {
       // {{methodParam}}
       result = result.replace(/{{methodParam}}/g, methodParam);
 
-      // {{methodParam}}
-      result = result.replace(/{{methodParamName}}/g, paramName);
-
-      // {{methodParamMetadata}}
-      result = result.replace(/{{methodParamMetadata}}/g, `${requestType}Metadata`);
-
       // {{methodResultType}}
       result = result.replace(/{{methodResultType}}/g, resultType);
 
       // {{url}}
       result = result.replace(/{{url}}/g, url);
 
-      // {{dataName}}
-      result = result.replace(/{{body}}/g, methodParam ? `JSON.stringify(${paramName})` : 'null');
+      // {{formPrepare}}
+      let formPrepare = methodFormType
+        ? 'const formData = new FormData();\n' +
+          `for (const key in ${paramFormName}) {\n` +
+          `  formData.append(key, ${paramFormName}[key]);\n` +
+          '}\n'
+        : '';
+
+      if (ctx.tabs && formPrepare) {
+        formPrepare = formPrepare.split('\n').map(item => tabsStub.repeat(ctx.tabs) + item).join('\n');
+      }
+
+      result = result.replace(/{{formPrepare}}/g, formPrepare);
+
+      // {{body}}
+      result = result.replace(
+        /{{body}}/g,
+        methodFormType
+          ? 'formData'
+          : !isEmptyModel(method.request) ? `JSON.stringify(${paramName})` : 'null');
 
       // {{httpMethod}}
       result = result.replace(/{{httpMethod}}/g, method.method);
