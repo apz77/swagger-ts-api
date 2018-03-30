@@ -2,7 +2,7 @@
   "name": "swagger-ts-api",
   "version": "0.0.1",
   "description": "Typescript API builder from swagger schema",
-  "main": "bin/index.js",
+  "main": "dist/index.js",
   "scripts": {
     "build": "tsc -p ./src"
   },

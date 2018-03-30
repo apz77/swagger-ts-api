@@ -69,7 +69,7 @@ export const defaultFieldMetadataTemplate =
 export const methodStub =
   'export const {{methodName}} = ({{methodParam}}): Promise<{{methodResultType}}> => {\n' +
   '\n' +
-  '  const headers = { \'Content-Type\': \'application/json\' };\n' +
+  '  const headers = { \'Content-Type\': \'{{contentType}}\' };\n' +
   '{{formPrepare}}\n' +
   '  return fetch(\n' +
   '    API_URL +\n' +

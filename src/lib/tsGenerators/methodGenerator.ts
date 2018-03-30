@@ -43,6 +43,9 @@ export class MethodGenerator {
       // {{url}}
       result = result.replace(/{{url}}/g, url);
 
+      // {{contentType}}
+      result = result.replace(/{{contentType}}/g, 'application/json');
+
 
     } else {
       result = this.methodTemplate.slice();
@@ -88,6 +91,12 @@ export class MethodGenerator {
         methodFormType
           ? 'formData'
           : !isEmptyModel(method.request) ? `JSON.stringify(${paramName})` : 'null');
+
+      // {{contentType}}
+      result = result.replace(
+        /{{contentType}}/g,
+        methodFormType ? 'application/json' : 'multipart/mixed',
+      );
 
       // {{httpMethod}}
       result = result.replace(/{{httpMethod}}/g, method.method);

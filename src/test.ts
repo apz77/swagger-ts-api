@@ -7,7 +7,6 @@ import * as fs from 'fs';
 import * as rimraf from 'rimraf';
 
 const schemaOutFile = 'schema.json';
-const interfacesOutFile = 'models.ts';
 
 if (fs.existsSync(schemaOutFile)) {
   fs.unlinkSync(schemaOutFile);
@@ -33,10 +32,9 @@ request('http://127.0.0.1:3001/docs/swagger.json', (error: any, response: any, b
       generateTypeScriptFiles(outDir + '/' ,schemasAndPaths.paths, schemasAndPaths.schemas, ctx);
     }
 
-    fs.appendFileSync(schemaOutFile, JSON.stringify(schemasAndPaths, null, 2));
+    fs.appendFileSync(outDir + '/' + schemaOutFile, JSON.stringify(schemasAndPaths, null, 2));
 
     console.log(ctx.hasErrors ? 'Some errors occured during swagger translation' : 'All is good');
-    console.log(`Check TS results in ${interfacesOutFile}`);
     console.log(`Swagger parsing result in ${schemaOutFile}`);
   });
 
