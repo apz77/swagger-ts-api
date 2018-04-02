@@ -76,7 +76,7 @@ export class MethodGenerator {
       let formPrepare = methodFormType
         ? 'const formData = new FormData();\n' +
           `for (const key in ${paramFormName}) {\n` +
-          `  formData.append(key, ${paramFormName}[key]);\n` +
+          `  formData.append(key, (${paramFormName} as {[key: string]: any})[key]);\n` +
           '}\n'
         : '';
 
