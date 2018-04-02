@@ -32,7 +32,7 @@ var MethodGenerator = /** @class */ (function () {
             // {{contentType}}
             result = result.replace(/{{contentType}}/g, 'application/json');
             // {{comment}}
-            result = result.replace(/{{comment}}/g, "/** " + method.summary + "\n    " + method.description + " */\n");
+            result = result.replace(/{{comment}}/g, "/**\n  " + method.summary + "\n  " + method.description + "\n */\n");
         }
         else {
             result = this.methodTemplate.slice();
@@ -71,7 +71,7 @@ var MethodGenerator = /** @class */ (function () {
             // {{httpMethod}}
             result = result.replace(/{{httpMethod}}/g, method.method);
             // {{comment}}
-            result = result.replace(/{{comment}}/g, "/** " + method.summary + "\n    " + method.description + " */\n");
+            result = result.replace(/{{comment}}/g, "/**\n  " + method.summary + "\n  " + method.description + "\n */\n");
             if (ctx.tabs) {
                 result = result.split('\n').map(function (item) { return tsInterfacesStub_1.tabsStub.repeat(ctx.tabs) + item; }).join('\n');
             }

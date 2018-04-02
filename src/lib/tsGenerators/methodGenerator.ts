@@ -48,8 +48,7 @@ export class MethodGenerator {
       result = result.replace(/{{contentType}}/g, 'application/json');
 
       // {{comment}}
-      result = result.replace(/{{comment}}/g, `/** ${method.summary}\n    ${method.description} */\n`);
-
+      result = result.replace(/{{comment}}/g, `/**\n  ${method.summary}\n  ${method.description}\n */\n`);
 
     } else {
       result = this.methodTemplate.slice();
@@ -106,7 +105,7 @@ export class MethodGenerator {
       result = result.replace(/{{httpMethod}}/g, method.method);
 
       // {{comment}}
-      result = result.replace(/{{comment}}/g, `/** ${method.summary}\n    ${method.description} */\n`);
+      result = result.replace(/{{comment}}/g, `/**\n  ${method.summary}\n  ${method.description}\n */\n`);
 
       if (ctx.tabs) {
         result = result.split('\n').map(item => tabsStub.repeat(ctx.tabs) + item).join('\n');
