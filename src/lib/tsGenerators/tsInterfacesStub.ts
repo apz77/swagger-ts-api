@@ -67,6 +67,7 @@ export const defaultFieldMetadataTemplate =
     '};';
 
 export const methodStub =
+  '{{comment}}' +
   'export const {{methodName}} = ({{methodParam}}): Promise<{{methodResultType}}> => {\n' +
   '\n' +
   '  const headers = { \'Content-Type\': \'{{contentType}}\' };\n' +
@@ -90,6 +91,7 @@ export const methodStub =
 
 
 export const linkMethodStub =
+  '{{comment}}' +
   'export const {{methodName}} = ({{methodParam}}): string => {\n' +
   '  return `{{url}}`;\n' +
   '};\n';

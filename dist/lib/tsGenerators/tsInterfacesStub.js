@@ -57,7 +57,8 @@ exports.defaultFieldMetadataTemplate = 'export const {{name}} = {\n' +
     '  isRequired: {{isRequired}},\n' +
     '  apiField: \'{{apiField}}\',\n' +
     '};';
-exports.methodStub = 'export const {{methodName}} = ({{methodParam}}): Promise<{{methodResultType}}> => {\n' +
+exports.methodStub = '{{comment}}' +
+    'export const {{methodName}} = ({{methodParam}}): Promise<{{methodResultType}}> => {\n' +
     '\n' +
     '  const headers = { \'Content-Type\': \'{{contentType}}\' };\n' +
     '{{formPrepare}}\n' +
@@ -77,7 +78,8 @@ exports.methodStub = 'export const {{methodName}} = ({{methodParam}}): Promise<{
     '      return response.text();\n' +
     '  });\n' +
     '};\n';
-exports.linkMethodStub = 'export const {{methodName}} = ({{methodParam}}): string => {\n' +
+exports.linkMethodStub = '{{comment}}' +
+    'export const {{methodName}} = ({{methodParam}}): string => {\n' +
     '  return `{{url}}`;\n' +
     '};\n';
 exports.defaultModuleMethodTemplate = '{{method}}' +
