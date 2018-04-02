@@ -19,7 +19,7 @@ export class FileGenerator {
 
     result = result.replace(
       /{{files}}/g,
-      tags.map(tag => `export * from '${this.getFileName(tag)}';`).join('\n'),
+      tags.map(tag => `export * from './${this.getFileName(tag)}';`).join('\n'),
     );
 
     result = result.replace(

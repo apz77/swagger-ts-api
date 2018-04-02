@@ -19,7 +19,7 @@ var FileGenerator = /** @class */ (function () {
     FileGenerator.prototype.generateIndex = function (schemas, tags) {
         var _this = this;
         var result = this.indexTemplate.slice();
-        result = result.replace(/{{files}}/g, tags.map(function (tag) { return "export * from '" + _this.getFileName(tag) + "';"; }).join('\n'));
+        result = result.replace(/{{files}}/g, tags.map(function (tag) { return "export * from './" + _this.getFileName(tag) + "';"; }).join('\n'));
         result = result.replace(/{{commonTypes}}/g, this.interfaceGenerator.generateModelTypes(schemas));
         return result;
     };
