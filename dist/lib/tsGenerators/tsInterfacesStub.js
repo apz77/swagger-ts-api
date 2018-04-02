@@ -78,8 +78,7 @@ exports.methodStub = 'export const {{methodName}} = ({{methodParam}}): Promise<{
     '  });\n' +
     '};\n';
 exports.linkMethodStub = 'export const {{methodName}} = ({{methodParam}}): string => {\n' +
-    '  return API_URL +\n' +
-    '    `{{url}}`;\n' +
+    '  return `{{url}}`;\n' +
     '};\n';
 exports.defaultModuleMethodTemplate = '{{method}}' +
     '{{requestInterface}}' +

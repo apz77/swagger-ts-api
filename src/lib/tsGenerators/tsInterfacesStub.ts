@@ -91,8 +91,7 @@ export const methodStub =
 
 export const linkMethodStub =
   'export const {{methodName}} = ({{methodParam}}): string => {\n' +
-  '  return API_URL +\n' +
-  '    `{{url}}`;\n' +
+  '  return `{{url}}`;\n' +
   '};\n';
 
 export const defaultModuleMethodTemplate =
