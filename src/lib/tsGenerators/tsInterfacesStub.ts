@@ -79,12 +79,13 @@ export const methodStub =
   '      method: \'{{httpMethod}}\',\n' +
   '      credentials: \'include\',\n' +
   '    },\n' +
-  '  ).then(response => \n' +
-  '     response.headers.has(\'Content-Type\') &&\n' +
-  '     response.headers.get(\'Content-Type\').indexOf(\'application/json\') > -1\n' +
-  '       ? response.json()\n' +
-  '       : response.text(),\n' +
-  '  );\n' +
+  '  ).then(response => {\n' +
+  '      const contentType = response.headers.has(\'Content-Type\') && response.headers.get(\'Content-Type\'); \n' +
+  '      if (contentType && contentType.indexOf(\'application/json\') > -1) {\n' +
+  '        return response.json()\n' +
+  '      }\n' +
+  '      return response.text();\n' +
+  '  });\n' +
   '};\n'
 
 
