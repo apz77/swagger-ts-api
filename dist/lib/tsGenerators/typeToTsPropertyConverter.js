@@ -43,7 +43,7 @@ var TypeToTsPropertyConverter = /** @class */ (function () {
             return apiPrefix + this.basicPrefixedTypesMap[type.basicType];
         }
         switch (type.basicType) {
-            case types_1.BasicType.MODELTYPE: return 'ModelTypes';
+            case types_1.BasicType.MODELTYPE: return apiPrefix + 'ModelTypes';
             case types_1.BasicType.MODELID: return 'string';
             case types_1.BasicType.ARRAY: return "(" + this.convert(type.arrayType, apiPrefix, ctx) + ")[]";
             case types_1.BasicType.OBJECT: return this.convertObject(type, apiPrefix, ctx);

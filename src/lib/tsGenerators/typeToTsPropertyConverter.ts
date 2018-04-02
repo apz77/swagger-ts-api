@@ -46,7 +46,7 @@ export class TypeToTsPropertyConverter {
     }
 
     switch (type.basicType) {
-      case BasicType.MODELTYPE: return 'ModelTypes';
+      case BasicType.MODELTYPE: return apiPrefix + 'ModelTypes';
       case BasicType.MODELID: return 'string';
       case BasicType.ARRAY: return `(${this.convert((type as ArrayType).arrayType, apiPrefix, ctx)})[]`;
       case BasicType.OBJECT: return this.convertObject(type as ObjectType, apiPrefix, ctx);
