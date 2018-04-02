@@ -91,7 +91,7 @@ exports.defaultModuleMethodTemplate = '{{method}}' +
 exports.defaultModuleTemplate = 'export module {{ModuleName}} {\n' +
     '{{allMethods}}\n' +
     '}\n';
-exports.defaultFileTemplate = 'import * as Api from \'api\';\n' +
+exports.defaultFileTemplate = 'import * as Api from \'./api\';\n' +
     '\n' +
     '{{interface}}' +
     '{{module}}\n';

@@ -110,7 +110,7 @@ export const defaultModuleTemplate =
     '}\n';
 
 export const defaultFileTemplate =
-  'import * as Api from \'api\';\n' +
+  'import * as Api from \'./api\';\n' +
   '\n' +
   '{{interface}}' +
   '{{module}}\n'
