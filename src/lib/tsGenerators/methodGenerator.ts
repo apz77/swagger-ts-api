@@ -9,6 +9,7 @@ export interface MethodGeneratorContext {
 export class MethodGenerator {
   private methodTemplate: string;
   private linkMethodTemplate: string;
+  protected apiPrefix = 'Api.';
 
   constructor(methodTemplate?: string, linkMethodTemplate?: string) {
     this.methodTemplate = methodTemplate || methodStub;
@@ -21,8 +22,8 @@ export class MethodGenerator {
     const paramFormName = 'form';
     const requestType = method.request && method.request.name;
     const url = !isEmptyModel(method.request)
-      ? `setParams(\'${method.url}\', ${paramName}, ${requestType}Metadata)`
-      : `\'${method.url}\'`;
+      ? `${this.apiPrefix}setParams(${this.apiPrefix}API_URL + \'${method.url}\', ${paramName}, ${requestType}Metadata)`
+      : `${this.apiPrefix}API_URL + \'${method.url}\'`;
     const paramsArray = [];
 
     if (!isEmptyModel(method.request)) {

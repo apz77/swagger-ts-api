@@ -72,7 +72,6 @@ export const methodStub =
   '  const headers = { \'Content-Type\': \'{{contentType}}\' };\n' +
   '{{formPrepare}}\n' +
   '  return fetch(\n' +
-  '    API_URL +\n' +
   '    {{url}},\n' +
   '    {\n' +
   '      headers,\n' +

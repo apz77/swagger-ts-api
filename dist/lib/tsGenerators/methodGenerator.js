@@ -4,6 +4,7 @@ var types_1 = require("../types");
 var tsInterfacesStub_1 = require("./tsInterfacesStub");
 var MethodGenerator = /** @class */ (function () {
     function MethodGenerator(methodTemplate, linkMethodTemplate) {
+        this.apiPrefix = 'Api.';
         this.methodTemplate = methodTemplate || tsInterfacesStub_1.methodStub;
         this.linkMethodTemplate = linkMethodTemplate || tsInterfacesStub_1.linkMethodStub;
     }
@@ -13,8 +14,8 @@ var MethodGenerator = /** @class */ (function () {
         var paramFormName = 'form';
         var requestType = method.request && method.request.name;
         var url = !types_1.isEmptyModel(method.request)
-            ? "setParams('" + method.url + "', " + paramName + ", " + requestType + "Metadata)"
-            : "'" + method.url + "'";
+            ? this.apiPrefix + "setParams(" + this.apiPrefix + "API_URL + '" + method.url + "', " + paramName + ", " + requestType + "Metadata)"
+            : this.apiPrefix + "API_URL + '" + method.url + "'";
         var paramsArray = [];
         if (!types_1.isEmptyModel(method.request)) {
             paramsArray.push(paramName + ": " + requestType);
