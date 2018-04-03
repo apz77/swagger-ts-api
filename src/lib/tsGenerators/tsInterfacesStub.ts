@@ -47,7 +47,7 @@ export const defaultInterfaceTemplate =
 export const defaultMetadataTemplate =
     'export module {{name}}Metadata {\n' +
     '\n' +
-    '  const type = \'{{name}}\';\n' +
+    '  export const modelType = \'{{name}}\';\n' +
 //    '  const emptyModel: {{name}} = {{{emptyModelFields}}};\n' +
 //    '\n' +
 //    '  Object.freeze(emptyModel);\n' +

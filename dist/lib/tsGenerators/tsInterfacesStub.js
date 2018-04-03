@@ -41,7 +41,7 @@ exports.defaultInterfaceTemplate = 'export interface {{name}} extends Api.BaseMo
     '\n';
 exports.defaultMetadataTemplate = 'export module {{name}}Metadata {\n' +
     '\n' +
-    '  const type = \'{{name}}\';\n' +
+    '  export const modelType = \'{{name}}\';\n' +
     //    '  const emptyModel: {{name}} = {{{emptyModelFields}}};\n' +
     //    '\n' +
     //    '  Object.freeze(emptyModel);\n' +
