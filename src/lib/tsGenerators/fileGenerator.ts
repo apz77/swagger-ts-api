@@ -24,7 +24,7 @@ export class FileGenerator {
 
     result = result.replace(
       /{{commonTypes}}/g,
-      this.interfaceGenerator.generateModelTypes(schemas),
+      `\n${this.interfaceGenerator.generateModelTypes(schemas)}\n export const v0 = void 0;\n`,
     );
 
 

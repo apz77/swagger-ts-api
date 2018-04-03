@@ -42,8 +42,8 @@ exports.defaultInterfaceTemplate = 'export interface {{name}} extends Api.BaseMo
 exports.defaultMetadataTemplate = 'export module {{name}}Metadata {\n' +
     '\n' +
     '  export const modelType = \'{{name}}\';\n' +
-    //    '  const emptyModel: {{name}} = {{{emptyModelFields}}};\n' +
-    //    '\n' +
+    '  export const emptyModel: {{name}} = {{{emptyModelFields}}};\n' +
+    '\n' +
     //    '  Object.freeze(emptyModel);\n' +
     '\n' +
     '  export module fields {\n' +
@@ -71,11 +71,11 @@ exports.methodStub = '{{comment}}' +
     '      credentials: \'include\',\n' +
     '    },\n' +
     '  ).then((response) => {\n' +
-    '      const contentType = response.headers.has(\'Content-Type\') && response.headers.get(\'Content-Type\'); \n' +
-    '      if (contentType && contentType.indexOf(\'application/json\') > -1) {\n' +
-    '        return response.json()\n' +
-    '      }\n' +
-    '      return response.text();\n' +
+    '    const contentType = response.headers.has(\'Content-Type\') && response.headers.get(\'Content-Type\'); \n' +
+    '    if (contentType && contentType.indexOf(\'application/json\') > -1) {\n' +
+    '      return response.json()\n' +
+    '    }\n' +
+    '    return response.text();\n' +
     '  });\n' +
     '};\n';
 exports.linkMethodStub = '{{comment}}' +

@@ -20,7 +20,7 @@ var FileGenerator = /** @class */ (function () {
         var _this = this;
         var result = this.indexTemplate.slice();
         result = result.replace(/{{files}}/g, tags.map(function (tag) { return "export * from './" + _this.getFileName(tag) + "';"; }).join('\n'));
-        result = result.replace(/{{commonTypes}}/g, this.interfaceGenerator.generateModelTypes(schemas));
+        result = result.replace(/{{commonTypes}}/g, "\n" + this.interfaceGenerator.generateModelTypes(schemas) + "\n export const v0 = void 0;\n");
         return result;
     };
     FileGenerator.prototype.getIndexFileName = function () {
