@@ -105,14 +105,18 @@ var InterfaceGenerator = /** @class */ (function () {
 exports.InterfaceGenerator = InterfaceGenerator;
 function getPropertyName(property, ctx) {
     if (property.types.find(function (type) { return type.basicType === types_1.BasicType.LINK; })) {
-        if (ctx.isResponse || property.name.substr(-2) === 'Id') {
+        if (property.name.substr(-2) === 'Id') {
             return property.name.substr(0, property.name.length - 2);
         }
         else if (property.name.indexOf('Id') >= 0) {
-            console.warn("Property " + ctx.schema.name + "." + property.name + " is a link, but does not end with Id.");
+            if (!ctx.isResponse) {
+                console.warn("Property " + ctx.schema.name + "." + property.name + " is a link, but does not end with Id.");
+            }
             return property.name.replace('Id', '');
         }
-        console.warn("Property " + ctx.schema.name + "." + property.name + " is a link, but does not end with Id.");
+        if (!ctx.isResponse) {
+            console.warn("Property " + ctx.schema.name + "." + property.name + " is a link, but does not end with Id.");
+        }
     }
     return property.name;
 }
