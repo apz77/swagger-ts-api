@@ -73,7 +73,7 @@ exports.methodStub = '{{comment}}' +
     '  ).then((response) => {\n' +
     '    const contentType = response.headers.has(\'Content-Type\') && response.headers.get(\'Content-Type\'); \n' +
     '    if (contentType && contentType.indexOf(\'application/json\') > -1) {\n' +
-    '      return response.json()\n' +
+    '      return response.json();\n' +
     '    }\n' +
     '    return response.text();\n' +
     '  });\n' +
