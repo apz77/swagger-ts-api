@@ -48,7 +48,7 @@ export const defaultMetadataTemplate =
     'export module {{name}}Metadata {\n' +
     '\n' +
     '  export const modelType = \'{{name}}\';\n' +
-    '  export const emptyModel = {{{emptyModelFields}}};\n' +
+    '  export const emptyModel = { {{emptyModelFields}} };\n' +
     '\n' +
 //    '  Object.freeze(emptyModel);\n' +
     '\n' +
@@ -81,6 +81,9 @@ export const methodStub =
   '      credentials: \'include\',\n' +
   '    },\n' +
   '  ).then((response) => {\n' +
+  '    if (!response.ok) {\n' +
+  '      throw(response);\n' +
+  '    }\n' +
   '    const contentType = response.headers.has(\'Content-Type\') && response.headers.get(\'Content-Type\'); \n' +
   '    if (contentType && contentType.indexOf(\'application/json\') > -1) {\n' +
   '      return response.json();\n' +
@@ -111,6 +114,7 @@ export const defaultModuleTemplate =
     '}\n';
 
 export const defaultFileTemplate =
+  '/* tslint:disable:max-line-length */\n\n' +
   'import * as Api from \'./api\';\n' +
   '\n' +
   '{{interface}}' +
@@ -123,3 +127,10 @@ export const defaultIndexTemplate =
   'export * from \'../baseTypes\';\n\n' +
   '{{files}}\n' +
   '{{commonTypes}}\n'
+
+
+export const typeCheckTemplate = 'export function is{{name}}(arg: any): arg is {{name}} {\n' +
+  '  return arg && (typeof arg === \'object\') {{requiredProps}};\n' +
+  '}\n';
+
+

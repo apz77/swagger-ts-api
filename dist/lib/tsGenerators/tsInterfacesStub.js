@@ -42,7 +42,7 @@ exports.defaultInterfaceTemplate = 'export interface {{name}} extends Api.BaseMo
 exports.defaultMetadataTemplate = 'export module {{name}}Metadata {\n' +
     '\n' +
     '  export const modelType = \'{{name}}\';\n' +
-    '  export const emptyModel = {{{emptyModelFields}}};\n' +
+    '  export const emptyModel = { {{emptyModelFields}} };\n' +
     '\n' +
     //    '  Object.freeze(emptyModel);\n' +
     '\n' +
@@ -71,6 +71,9 @@ exports.methodStub = '{{comment}}' +
     '      credentials: \'include\',\n' +
     '    },\n' +
     '  ).then((response) => {\n' +
+    '    if (!response.ok) {\n' +
+    '      throw(response);\n' +
+    '    }\n' +
     '    const contentType = response.headers.has(\'Content-Type\') && response.headers.get(\'Content-Type\'); \n' +
     '    if (contentType && contentType.indexOf(\'application/json\') > -1) {\n' +
     '      return response.json();\n' +
@@ -92,7 +95,8 @@ exports.defaultModuleMethodTemplate = '{{method}}' +
 exports.defaultModuleTemplate = 'export module {{ModuleName}} {\n' +
     '{{allMethods}}\n' +
     '}\n';
-exports.defaultFileTemplate = 'import * as Api from \'./api\';\n' +
+exports.defaultFileTemplate = '/* tslint:disable:max-line-length */\n\n' +
+    'import * as Api from \'./api\';\n' +
     '\n' +
     '{{interface}}' +
     '{{module}}\n';
@@ -102,4 +106,7 @@ exports.defaultIndexTemplate = '/* tslint:disable */\n\n' +
     'export * from \'../baseTypes\';\n\n' +
     '{{files}}\n' +
     '{{commonTypes}}\n';
+exports.typeCheckTemplate = 'export function is{{name}}(arg: any): arg is {{name}} {\n' +
+    '  return arg && (typeof arg === \'object\') {{requiredProps}};\n' +
+    '}\n';
 //# sourceMappingURL=tsInterfacesStub.js.map

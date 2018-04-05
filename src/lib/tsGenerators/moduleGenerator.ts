@@ -2,6 +2,7 @@ import { InterfaceGenerator } from './interfaceGenerator';
 import { MethodGenerator } from './methodGenerator';
 import { AllSchemas, isEmptyModel, Method } from '../types';
 import { defaultModuleMethodTemplate, defaultModuleTemplate, tabsStub } from './tsInterfacesStub';
+import { TypeCheckGenerator } from './typeCheckGenerator';
 
 export interface ModuleGeneratorContext {
   hasErrors: boolean;
@@ -15,6 +16,7 @@ export class ModuleGenerator {
 
   constructor(protected interfaceGenerator: InterfaceGenerator,
               protected methodGenerator: MethodGenerator,
+              protected typeCheckGenerator: TypeCheckGenerator,
               methodTemplate?: string,
               moduleTemplate?: string) {
 
@@ -30,74 +32,81 @@ export class ModuleGenerator {
     const tabs = typeof ctx.tabs === 'number' ? ctx.tabs : 0;
 
     const allMethods = methods.map((method) => {
-          let methodResult = this.methodTemplate.slice();
+      let methodResult = this.methodTemplate.slice();
 
-          const newCtx = {
-              ...ctx,
-              isResponse: false,
-              tabs: tabs + 1,
-          };
+      const newCtx = {
+        ...ctx,
+        isResponse: false,
+        tabs: tabs + 1,
+      };
 
-          // {{method}}
-          methodResult = methodResult.replace(
-              /{{method}}/g,
-              this.methodGenerator.generateMethod(method, newCtx) + '\n',
-          );
+      // {{method}}
+      methodResult = methodResult.replace(
+        /{{method}}/g,
+        this.methodGenerator.generateMethod(method, newCtx) + '\n',
+      );
 
-          // {{requestInterface}}
-          methodResult = methodResult.replace(
-              /{{requestInterface}}/g,
-              !isEmptyModel(method.request) && method.request
-                ? this.interfaceGenerator.generate(method.request, allSchemas, newCtx) + '\n'
-                : '',
-          );
+      // {{requestInterface}}
+      methodResult = methodResult.replace(
+        /{{requestInterface}}/g,
+        !isEmptyModel(method.request) && method.request
+          ? this.interfaceGenerator.generate(method.request, allSchemas, newCtx) + '\n\n' +
+            this.typeCheckGenerator.generate(method.request, newCtx) + '\n'
+          : '',
+      );
 
-          // {{requestInterface}}
-          methodResult = methodResult.replace(
-            /{{formInterface}}/g,
-            !isEmptyModel(method.form) && method.form
-              ? this.interfaceGenerator.generate(method.form, allSchemas, newCtx) + '\n'
-              : '',
-          );
-
-
-          // {{responseInterface}}
-          methodResult = methodResult.replace(
-              /{{responseInterface}}/g,
-              !isEmptyModel(method.response) && method.response && method.response !== 'link'
-                ? this.interfaceGenerator.generate(method.response, allSchemas, { ...newCtx, isResponse: true }) + '\n'
-                : '',
-          );
-
-          // {{requestMetadata}}
-          methodResult = methodResult.replace(
-              /{{requestMetadata}}/g,
-              !isEmptyModel(method.request) && method.request
-                ? this.interfaceGenerator.generateMetadata(method.request, allSchemas, newCtx) + '\n'
-                : '',
-          );
-
-          // {{formMetadata}}
-          methodResult = methodResult.replace(
-            /{{formMetadata}}/g,
-            method.form &&!isEmptyModel(method.form)
-              ? this.interfaceGenerator.generateMetadata(method.form, allSchemas, newCtx) + '\n'
-              : '',
-          );
+      // {{requestInterface}}
+      methodResult = methodResult.replace(
+        /{{formInterface}}/g,
+        !isEmptyModel(method.form) && method.form
+          ? this.interfaceGenerator.generate(method.form, allSchemas, newCtx) + '\n\n' +
+            this.typeCheckGenerator.generate(method.form, newCtx) + '\n'
+          : '',
+      );
 
 
-          // {{responseMetadata}}
-          methodResult = methodResult.replace(
-              /{{responseMetadata}}/g,
-              !isEmptyModel(method.response) && method.response && method.response !== 'link'
-                ? this.interfaceGenerator.generateMetadata(method.response, allSchemas, { ...newCtx, isResponse: true }) + '\n'
-                : '',
-          );
+      // {{responseInterface}}
+      methodResult = methodResult.replace(
+        /{{responseInterface}}/g,
+        !isEmptyModel(method.response) && method.response && method.response !== 'link'
+          ? this.interfaceGenerator.generate(method.response, allSchemas, { ...newCtx, isResponse: true }) + '\n\n' +
+            this.typeCheckGenerator.generate(method.response, newCtx) + '\n'
+          : '',
+      );
 
-          ctx.hasErrors = ctx.hasErrors || newCtx.hasErrors;
+      // {{requestMetadata}}
+      methodResult = methodResult.replace(
+        /{{requestMetadata}}/g,
+        !isEmptyModel(method.request) && method.request
+          ? this.interfaceGenerator.generateMetadata(method.request, allSchemas, newCtx) + '\n'
+          : '',
+      );
 
-          return methodResult;
-        }).join('\n');
+      // {{formMetadata}}
+      methodResult = methodResult.replace(
+        /{{formMetadata}}/g,
+        method.form && !isEmptyModel(method.form)
+          ? this.interfaceGenerator.generateMetadata(method.form, allSchemas, newCtx) + '\n'
+          : '',
+      );
+
+
+      // {{responseMetadata}}
+      methodResult = methodResult.replace(
+        /{{responseMetadata}}/g,
+        !isEmptyModel(method.response) && method.response && method.response !== 'link'
+          ? this.interfaceGenerator.generateMetadata(
+              method.response,
+              allSchemas,
+              { ...newCtx, isResponse: true },
+            ) + '\n'
+          : '',
+      );
+
+      ctx.hasErrors = ctx.hasErrors || newCtx.hasErrors;
+
+      return methodResult;
+    }).join('\n');
 
     result = result.replace(
             /{{ModuleName}}/g,

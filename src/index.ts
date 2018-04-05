@@ -12,6 +12,7 @@ import { ModuleGenerator } from './lib/tsGenerators/moduleGenerator';
 import { FileGenerator } from './lib/tsGenerators/fileGenerator';
 import * as fs from 'fs';
 import * as rimraf from 'rimraf';
+import { TypeCheckGenerator } from './lib/tsGenerators/typeCheckGenerator';
 
 export function clearDirectory(dir: string, callback: (error: Error) => void) {
   rimraf(dir, callback);
@@ -31,8 +32,9 @@ export function generateTypeScriptFiles(filesPath: string,
 
   const methodToTsGenerator = new MethodGenerator();
   const interfaceGenerator = new InterfaceGenerator();
-  const moduleGenerator = new ModuleGenerator(interfaceGenerator, methodToTsGenerator);
-  const fileGenerator = new FileGenerator(moduleGenerator, interfaceGenerator);
+  const typeCheckGenerator = new TypeCheckGenerator();
+  const moduleGenerator = new ModuleGenerator(interfaceGenerator, methodToTsGenerator, typeCheckGenerator);
+  const fileGenerator = new FileGenerator(moduleGenerator, interfaceGenerator, typeCheckGenerator);
 
   const tags = [
     ...Object.keys(paths),
@@ -141,7 +143,8 @@ export function generateTypeScriptModule(paths: Paths, schemas: AllSchemas, ctx:
 
   const methodToTsGenerator = new MethodGenerator();
   const interfaceGenerator = new InterfaceGenerator();
-  const moduleGenerator = new ModuleGenerator(interfaceGenerator, methodToTsGenerator);
+  const typeCheckGenerator = new TypeCheckGenerator();
+  const moduleGenerator = new ModuleGenerator(interfaceGenerator, methodToTsGenerator, typeCheckGenerator);
 
 
   return Object.keys(paths).map((moduleName) => {

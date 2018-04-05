@@ -10,9 +10,10 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var tsInterfacesStub_1 = require("./tsInterfacesStub");
 var FileGenerator = /** @class */ (function () {
-    function FileGenerator(moduleGenerator, interfaceGenerator) {
+    function FileGenerator(moduleGenerator, interfaceGenerator, typeCheckGenerator) {
         this.moduleGenerator = moduleGenerator;
         this.interfaceGenerator = interfaceGenerator;
+        this.typeCheckGenerator = typeCheckGenerator;
         this.fileTemplate = tsInterfacesStub_1.defaultFileTemplate;
         this.indexTemplate = tsInterfacesStub_1.defaultIndexTemplate;
     }
@@ -35,8 +36,10 @@ var FileGenerator = /** @class */ (function () {
         var moduleContent = '';
         var newCtx = __assign({}, ctx, { isResponse: false, tabs: 0 });
         if (schemas[tag]) {
-            interfaceAndMetadata = this.interfaceGenerator.generate(schemas[tag], schemas, newCtx) + '\n' +
-                this.interfaceGenerator.generateMetadata(schemas[tag], schemas, newCtx) + '\n';
+            interfaceAndMetadata =
+                this.interfaceGenerator.generate(schemas[tag], schemas, newCtx) + '\n\n' +
+                    this.typeCheckGenerator.generate(schemas[tag], newCtx) + '\n\n' +
+                    this.interfaceGenerator.generateMetadata(schemas[tag], schemas, newCtx) + '\n';
         }
         // {{interface}}
         result = result.replace(/{{interface}}/g, interfaceAndMetadata);

@@ -2,6 +2,7 @@ import { AllSchemas, Paths } from '../types';
 import { ModuleGenerator } from './moduleGenerator';
 import { InterfaceGenerator } from './interfaceGenerator';
 import { defaultFileTemplate, defaultIndexTemplate } from './tsInterfacesStub';
+import { TypeCheckGenerator } from './typeCheckGenerator';
 
 export class FileGenerator {
 
@@ -9,7 +10,8 @@ export class FileGenerator {
   protected indexTemplate: string;
 
   constructor(protected moduleGenerator: ModuleGenerator,
-              protected interfaceGenerator: InterfaceGenerator) {
+              protected interfaceGenerator: InterfaceGenerator,
+              protected typeCheckGenerator: TypeCheckGenerator) {
     this.fileTemplate = defaultFileTemplate;
     this.indexTemplate = defaultIndexTemplate;
   }
@@ -51,7 +53,9 @@ export class FileGenerator {
     }
 
     if (schemas[tag]) {
-      interfaceAndMetadata = this.interfaceGenerator.generate(schemas[tag], schemas, newCtx) + '\n' +
+      interfaceAndMetadata =
+        this.interfaceGenerator.generate(schemas[tag], schemas, newCtx) + '\n\n' +
+        this.typeCheckGenerator.generate(schemas[tag], newCtx) + '\n\n' +
         this.interfaceGenerator.generateMetadata(schemas[tag], schemas, newCtx) + '\n';
     }
 

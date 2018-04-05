@@ -21,6 +21,7 @@ var moduleGenerator_1 = require("./lib/tsGenerators/moduleGenerator");
 var fileGenerator_1 = require("./lib/tsGenerators/fileGenerator");
 var fs = require("fs");
 var rimraf = require("rimraf");
+var typeCheckGenerator_1 = require("./lib/tsGenerators/typeCheckGenerator");
 function clearDirectory(dir, callback) {
     rimraf(dir, callback);
 }
@@ -35,8 +36,9 @@ exports.clearDirectory = clearDirectory;
 function generateTypeScriptFiles(filesPath, paths, schemas, ctx) {
     var methodToTsGenerator = new methodGenerator_1.MethodGenerator();
     var interfaceGenerator = new interfaceGenerator_1.InterfaceGenerator();
-    var moduleGenerator = new moduleGenerator_1.ModuleGenerator(interfaceGenerator, methodToTsGenerator);
-    var fileGenerator = new fileGenerator_1.FileGenerator(moduleGenerator, interfaceGenerator);
+    var typeCheckGenerator = new typeCheckGenerator_1.TypeCheckGenerator();
+    var moduleGenerator = new moduleGenerator_1.ModuleGenerator(interfaceGenerator, methodToTsGenerator, typeCheckGenerator);
+    var fileGenerator = new fileGenerator_1.FileGenerator(moduleGenerator, interfaceGenerator, typeCheckGenerator);
     var tags = Object.keys(paths).concat(Object.keys(schemas)).filter(function (value, index, array) { return array.indexOf(value) === index; });
     for (var _i = 0, tags_1 = tags; _i < tags_1.length; _i++) {
         var tag = tags_1[_i];
@@ -102,7 +104,8 @@ exports.generateTypescriptIntefacesWithMetadata = generateTypescriptIntefacesWit
 function generateTypeScriptModule(paths, schemas, ctx) {
     var methodToTsGenerator = new methodGenerator_1.MethodGenerator();
     var interfaceGenerator = new interfaceGenerator_1.InterfaceGenerator();
-    var moduleGenerator = new moduleGenerator_1.ModuleGenerator(interfaceGenerator, methodToTsGenerator);
+    var typeCheckGenerator = new typeCheckGenerator_1.TypeCheckGenerator();
+    var moduleGenerator = new moduleGenerator_1.ModuleGenerator(interfaceGenerator, methodToTsGenerator, typeCheckGenerator);
     return Object.keys(paths).map(function (moduleName) {
         return moduleGenerator.generate(moduleName, paths[moduleName], schemas, ctx);
     }).join('\n');

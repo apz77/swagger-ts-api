@@ -11,9 +11,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var types_1 = require("../types");
 var tsInterfacesStub_1 = require("./tsInterfacesStub");
 var ModuleGenerator = /** @class */ (function () {
-    function ModuleGenerator(interfaceGenerator, methodGenerator, methodTemplate, moduleTemplate) {
+    function ModuleGenerator(interfaceGenerator, methodGenerator, typeCheckGenerator, methodTemplate, moduleTemplate) {
         this.interfaceGenerator = interfaceGenerator;
         this.methodGenerator = methodGenerator;
+        this.typeCheckGenerator = typeCheckGenerator;
         this.methodTemplate = methodTemplate || tsInterfacesStub_1.defaultModuleMethodTemplate;
         this.moduleTemplate = moduleTemplate || tsInterfacesStub_1.defaultModuleTemplate;
     }
@@ -28,15 +29,18 @@ var ModuleGenerator = /** @class */ (function () {
             methodResult = methodResult.replace(/{{method}}/g, _this.methodGenerator.generateMethod(method, newCtx) + '\n');
             // {{requestInterface}}
             methodResult = methodResult.replace(/{{requestInterface}}/g, !types_1.isEmptyModel(method.request) && method.request
-                ? _this.interfaceGenerator.generate(method.request, allSchemas, newCtx) + '\n'
+                ? _this.interfaceGenerator.generate(method.request, allSchemas, newCtx) + '\n\n' +
+                    _this.typeCheckGenerator.generate(method.request, newCtx) + '\n'
                 : '');
             // {{requestInterface}}
             methodResult = methodResult.replace(/{{formInterface}}/g, !types_1.isEmptyModel(method.form) && method.form
-                ? _this.interfaceGenerator.generate(method.form, allSchemas, newCtx) + '\n'
+                ? _this.interfaceGenerator.generate(method.form, allSchemas, newCtx) + '\n\n' +
+                    _this.typeCheckGenerator.generate(method.form, newCtx) + '\n'
                 : '');
             // {{responseInterface}}
             methodResult = methodResult.replace(/{{responseInterface}}/g, !types_1.isEmptyModel(method.response) && method.response && method.response !== 'link'
-                ? _this.interfaceGenerator.generate(method.response, allSchemas, __assign({}, newCtx, { isResponse: true })) + '\n'
+                ? _this.interfaceGenerator.generate(method.response, allSchemas, __assign({}, newCtx, { isResponse: true })) + '\n\n' +
+                    _this.typeCheckGenerator.generate(method.response, newCtx) + '\n'
                 : '');
             // {{requestMetadata}}
             methodResult = methodResult.replace(/{{requestMetadata}}/g, !types_1.isEmptyModel(method.request) && method.request
