@@ -81,7 +81,7 @@ exports.methodStub = '{{comment}}' +
     '          if ({{typeCheckFunction}}(decodedResponse)) {\n' +
     '            return decodedResponse;\n' +
     '          }\n' +
-    '          throw (`Response didnt pass validation for {{typeCheckFunction}}: ${JSON.stringify(decodedResponse)}`);\n' +
+    '          throw (`Response is not typeof for {{typeCheckFunction}}: ${JSON.stringify(decodedResponse)}`);\n' +
     '        });\n' +
     '    }\n' +
     '    return response.text();\n' +
