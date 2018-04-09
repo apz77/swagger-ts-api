@@ -77,6 +77,12 @@ exports.methodStub = '{{comment}}' +
     '    const contentType = response.headers.has(\'Content-Type\') && response.headers.get(\'Content-Type\'); \n' +
     '    if (contentType && contentType.indexOf(\'application/json\') > -1) {\n' +
     '      return response.json();\n' +
+    '        .then((decodedResponse: any) => {\n' +
+    '          if ({{typeCheckFunction}}(decodedResponse)) {\n' +
+    '            return decodedResponse;\n' +
+    '          }\n' +
+    '          throw (`Response didnt pass validation for {{typeCheckFunction}}: ${JSON.stringify(decodedResponse)}`);\n' +
+    '        });\n' +
     '    }\n' +
     '    return response.text();\n' +
     '  });\n' +
