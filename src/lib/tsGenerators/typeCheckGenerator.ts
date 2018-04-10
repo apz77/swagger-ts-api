@@ -1,5 +1,5 @@
 import { tabsStub, typeCheckTemplate } from './tsInterfacesStub';
-import { Schema } from '../types';
+import { ObjectProperty, ObjectType, Schema } from '../types';
 
 export interface TypeCheckGeneratorContext {
   hasErrors: boolean;
@@ -18,9 +18,26 @@ export class TypeCheckGenerator {
     result = result.replace(/{{name}}/g, schema.name);
 
     // {{requiredProps}}
-    const props = Object.keys(properties)
-      .filter(key => properties[key].isRequired)
+    let props = Object.keys(properties)
+      .filter(key => properties[key].isRequired && !properties[key].types.find(type => (type as any).properties))
       .map(key => `arg.${properties[key].name} !== ${this.apiPrefix}v0`);
+
+    const objectProps = Object.keys(properties)
+      .filter(key => properties[key].isRequired && properties[key].types.find(type => (type as any).properties))
+
+    props = props.concat(objectProps.map(key => `Object(arg.${properties[key].name}) === arg.${properties[key].name}`))
+
+
+    for (const subObject of objectProps) {
+      const subProp = properties[subObject];
+      const subProps = (subProp as ObjectProperty).types.find(type => (type as any).properties);
+      if (subProps) {
+        const subPropProps = (subProps as ObjectType).properties;
+        props = props.concat(
+          Object.keys(subPropProps).map(key => `arg.${subProp.name}.${subPropProps[key].name} !== ${this.apiPrefix}v0`),
+        );
+      }
+    }
 
     result = result.replace(
       /{{requiredProps}}/g,

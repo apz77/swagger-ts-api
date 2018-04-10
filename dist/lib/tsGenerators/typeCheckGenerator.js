@@ -13,8 +13,23 @@ var TypeCheckGenerator = /** @class */ (function () {
         result = result.replace(/{{name}}/g, schema.name);
         // {{requiredProps}}
         var props = Object.keys(properties)
-            .filter(function (key) { return properties[key].isRequired; })
+            .filter(function (key) { return properties[key].isRequired && !properties[key].types.find(function (type) { return type.properties; }); })
             .map(function (key) { return "arg." + properties[key].name + " !== " + _this.apiPrefix + "v0"; });
+        var objectProps = Object.keys(properties)
+            .filter(function (key) { return properties[key].isRequired && properties[key].types.find(function (type) { return type.properties; }); });
+        props = props.concat(objectProps.map(function (key) { return "Object(arg." + properties[key].name + ") === arg." + properties[key].name; }));
+        var _loop_1 = function (subObject) {
+            var subProp = properties[subObject];
+            var subProps = subProp.types.find(function (type) { return type.properties; });
+            if (subProps) {
+                var subPropProps_1 = subProps.properties;
+                props = props.concat(Object.keys(subPropProps_1).map(function (key) { return "arg." + subProp.name + "." + subPropProps_1[key].name + " !== " + _this.apiPrefix + "v0"; }));
+            }
+        };
+        for (var _i = 0, objectProps_1 = objectProps; _i < objectProps_1.length; _i++) {
+            var subObject = objectProps_1[_i];
+            _loop_1(subObject);
+        }
         result = result.replace(/{{requiredProps}}/g, props.length
             ? (' && ' + props.join(' && '))
             : '');
