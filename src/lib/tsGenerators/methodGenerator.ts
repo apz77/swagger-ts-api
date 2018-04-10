@@ -105,7 +105,7 @@ export class MethodGenerator {
         /{{body}}/g,
         methodFormType
           ? 'formData'
-          : requestType ? `JSON.stringify(${paramName})` : 'null');
+          : requestType ? `${this.apiPrefix}serialize(${paramName})` : 'null');
 
       // {{contentType}}
       result = result.replace(
