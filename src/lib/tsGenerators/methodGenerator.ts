@@ -1,5 +1,5 @@
-import { Method, isEmptyModel } from '../types';
-import { linkMethodStub, methodStub, tabsStub } from './tsInterfacesStub';
+import { Method, isEmptyModel, Schema } from '../types';
+import { linkMethodStub, methodStub, tabsStub, typeCheckCode } from './tsInterfacesStub';
 
 export interface MethodGeneratorContext {
   hasErrors: boolean;
@@ -9,6 +9,7 @@ export interface MethodGeneratorContext {
 export class MethodGenerator {
   private methodTemplate: string;
   private linkMethodTemplate: string;
+  private typeCheckCode = typeCheckCode;
   protected apiPrefix = 'Api.';
 
   constructor(methodTemplate?: string, linkMethodTemplate?: string) {
@@ -20,13 +21,18 @@ export class MethodGenerator {
     let result = '';
     const paramName = 'request';
     const paramFormName = 'form';
-    const requestType = method.request && method.request.name;
-    const url = !isEmptyModel(method.request)
+    const requestType = method.request
+      ? Array.isArray(method.request)
+        ? method.request.map(schema => schema.name).join(' | ')
+        : method.request.name
+      : null;
+
+    const url = requestType && method.url.includes('{')
       ? `${this.apiPrefix}setParams(${this.apiPrefix}API_URL + \'${method.url}\', ${paramName}, ${requestType}Metadata)`
       : `${this.apiPrefix}API_URL + \'${method.url}\'`;
     const paramsArray = [];
 
-    if (!isEmptyModel(method.request)) {
+    if (requestType) {
       paramsArray.push(`${paramName}: ${requestType}`);
     }
 
@@ -52,11 +58,17 @@ export class MethodGenerator {
 
     } else {
       result = this.methodTemplate.slice();
-      const resultType = (!isEmptyModel(method.response) && method.response && method.response.name) || 'void';
+      const resultType =
+        method.response
+          ? Array.isArray(method.response)
+            ? method.response.map(schema => schema.name).join(' | ')
+            : (!isEmptyModel(method.response) && method.response && method.response.name) || 'void'
+          : 'void';
+
       let methodFormType: string = '';
 
       if (method.form && !isEmptyModel(method.form)) {
-        methodFormType = method.form.name
+        methodFormType = method.form.name;
         paramsArray.push(`${paramFormName}: ${methodFormType}`);
       }
 
@@ -93,7 +105,7 @@ export class MethodGenerator {
         /{{body}}/g,
         methodFormType
           ? 'formData'
-          : !isEmptyModel(method.request) ? `JSON.stringify(${paramName})` : 'null');
+          : requestType ? `JSON.stringify(${paramName})` : 'null');
 
       // {{contentType}}
       result = result.replace(
@@ -104,15 +116,31 @@ export class MethodGenerator {
       // {{httpMethod}}
       result = result.replace(/{{httpMethod}}/g, method.method);
 
+      // {{typeCheckCode}}
+      result = result.replace(/{{typeCheckCode}}/g, this.generateTypeCheck(method.response));
+
       // {{comment}}
       result = result.replace(/{{comment}}/g, `/**\n  ${method.summary}\n  ${method.description}\n */\n`);
+    }
 
-      if (ctx.tabs) {
-        result = result.split('\n').map(item => tabsStub.repeat(ctx.tabs) + item).join('\n');
-      }
+    if (ctx.tabs) {
+      result = result.split('\n').map(item => tabsStub.repeat(ctx.tabs) + item).join('\n');
     }
 
     return result;
+  }
+
+
+  generateTypeCheck(schema: Schema | Schema[] | null) {
+    const schemas = Array.isArray(schema) ? schema : [schema];
+    if (schemas.length === 0 || (schemas.length === 1 && isEmptyModel(schemas[0]))) {
+      return ';';
+    }
+
+    return this.typeCheckCode.replace(/{{responseTypeCheckFunction}}/g, schemas
+      .map((schema) => {
+        return `is${(schema as Schema).name}(decodedResponse)`;
+      }). join(' || '));
   }
 
 }

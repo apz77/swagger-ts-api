@@ -70,26 +70,27 @@ exports.methodStub = '{{comment}}' +
     '      method: \'{{httpMethod}}\',\n' +
     '      credentials: \'include\',\n' +
     '    },\n' +
-    '  ).then((response) => {\n' +
+    '  ).then((response: any) => {\n' +
     '    if (!response.ok) {\n' +
     '      throw(response);\n' +
     '    }\n' +
     '    const contentType = response.headers.has(\'Content-Type\') && response.headers.get(\'Content-Type\'); \n' +
     '    if (contentType && contentType.indexOf(\'application/json\') > -1) {\n' +
-    '      return response.json();\n' +
-    '        .then((decodedResponse: any) => {\n' +
-    '          if ({{typeCheckFunction}}(decodedResponse)) {\n' +
-    '            return decodedResponse;\n' +
-    '          }\n' +
-    '          throw (`Response is not typeof for {{typeCheckFunction}}: ${JSON.stringify(decodedResponse)}`);\n' +
-    '        });\n' +
+    '      return response.json(){{typeCheckCode}}\n' +
     '    }\n' +
     '    return response.text();\n' +
     '  });\n' +
     '};\n';
+exports.typeCheckCode = '\n' +
+    '        .then((decodedResponse: any) => {\n' +
+    '          if ({{responseTypeCheckFunction}}) {\n' +
+    '            return decodedResponse;\n' +
+    '          }\n' +
+    '          throw (`Response is not typeof for {{responseTypeCheckFunction}}: ${JSON.stringify(decodedResponse)}`);\n' +
+    '        });\n';
 exports.linkMethodStub = '{{comment}}' +
     'export const {{methodName}} = ({{methodParam}}): string => {\n' +
-    '  return `{{url}}`;\n' +
+    '  return {{url}};\n' +
     '};\n';
 exports.defaultModuleMethodTemplate = '{{method}}' +
     '{{requestInterface}}' +

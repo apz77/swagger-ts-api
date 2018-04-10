@@ -14,7 +14,8 @@ export interface SwaggerSchemaProperty {
 
 export interface SwaggerSchema {
   additionalProperties: boolean;
-  properties: {[key: string]: SwaggerSchemaProperty};
+  oneOf?: [SwaggerSchema];
+  properties?: {[key: string]: SwaggerSchemaProperty};
   required?: string[];
   type: string;
   'x-metadata'?: {
@@ -146,9 +147,9 @@ export interface Method {
   method: HttpMethods;
   description: string;
   summary: string;
-  request: Schema | null;
+  request: Schema | Schema[] | null;
   form: Schema | null;
-  response: Schema | 'link' | null;
+  response: Schema | Schema[] | 'link' | null;
 }
 
 // Methods are grouped by a tag (key === tag)

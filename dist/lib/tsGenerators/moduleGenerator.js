@@ -28,32 +28,22 @@ var ModuleGenerator = /** @class */ (function () {
             // {{method}}
             methodResult = methodResult.replace(/{{method}}/g, _this.methodGenerator.generateMethod(method, newCtx) + '\n');
             // {{requestInterface}}
-            methodResult = methodResult.replace(/{{requestInterface}}/g, !types_1.isEmptyModel(method.request) && method.request
-                ? _this.interfaceGenerator.generate(method.request, allSchemas, newCtx) + '\n\n' +
-                    _this.typeCheckGenerator.generate(method.request, newCtx) + '\n'
-                : '');
+            methodResult = methodResult.replace(/{{requestInterface}}/g, _this.generateSchemasAndTypecheck(method.request, allSchemas, newCtx));
             // {{requestInterface}}
             methodResult = methodResult.replace(/{{formInterface}}/g, !types_1.isEmptyModel(method.form) && method.form
                 ? _this.interfaceGenerator.generate(method.form, allSchemas, newCtx) + '\n\n' +
                     _this.typeCheckGenerator.generate(method.form, newCtx) + '\n'
                 : '');
             // {{responseInterface}}
-            methodResult = methodResult.replace(/{{responseInterface}}/g, !types_1.isEmptyModel(method.response) && method.response && method.response !== 'link'
-                ? _this.interfaceGenerator.generate(method.response, allSchemas, __assign({}, newCtx, { isResponse: true })) + '\n\n' +
-                    _this.typeCheckGenerator.generate(method.response, newCtx) + '\n'
-                : '');
+            methodResult = methodResult.replace(/{{responseInterface}}/g, _this.generateSchemasAndTypecheck(method.response, allSchemas, __assign({}, newCtx, { isResponse: true })));
             // {{requestMetadata}}
-            methodResult = methodResult.replace(/{{requestMetadata}}/g, !types_1.isEmptyModel(method.request) && method.request
-                ? _this.interfaceGenerator.generateMetadata(method.request, allSchemas, newCtx) + '\n'
-                : '');
+            methodResult = methodResult.replace(/{{requestMetadata}}/g, _this.generateSchemasMetadata(method.request, allSchemas, newCtx));
             // {{formMetadata}}
             methodResult = methodResult.replace(/{{formMetadata}}/g, method.form && !types_1.isEmptyModel(method.form)
                 ? _this.interfaceGenerator.generateMetadata(method.form, allSchemas, newCtx) + '\n'
                 : '');
             // {{responseMetadata}}
-            methodResult = methodResult.replace(/{{responseMetadata}}/g, !types_1.isEmptyModel(method.response) && method.response && method.response !== 'link'
-                ? _this.interfaceGenerator.generateMetadata(method.response, allSchemas, __assign({}, newCtx, { isResponse: true })) + '\n'
-                : '');
+            methodResult = methodResult.replace(/{{responseMetadata}}/g, _this.generateSchemasMetadata(method.response, allSchemas, __assign({}, newCtx, { isResponse: true })));
             ctx.hasErrors = ctx.hasErrors || newCtx.hasErrors;
             return methodResult;
         }).join('\n');
@@ -64,6 +54,29 @@ var ModuleGenerator = /** @class */ (function () {
             result = result.split('\n').map(function (item) { return tsInterfacesStub_1.tabsStub.repeat(tabs) + item; }).join('\n');
         }
         return result;
+    };
+    ModuleGenerator.prototype.generateSchemasAndTypecheck = function (schema, allSchemas, ctx) {
+        var _this = this;
+        var schemas = Array.isArray(schema) ? schema : [schema];
+        return schemas
+            .filter(function (schema) { return !!schema && schema !== 'link'; })
+            .map(function (schema) {
+            return !types_1.isEmptyModel(schema) && schema
+                ? _this.interfaceGenerator.generate(schema, allSchemas, ctx) + '\n\n' +
+                    _this.typeCheckGenerator.generate(schema, ctx) + '\n'
+                : '';
+        }).join('\n');
+    };
+    ModuleGenerator.prototype.generateSchemasMetadata = function (schema, allSchemas, ctx) {
+        var _this = this;
+        var schemas = Array.isArray(schema) ? schema : [schema];
+        return schemas
+            .filter(function (schema) { return !!schema && schema !== 'link'; })
+            .map(function (schema) {
+            return !types_1.isEmptyModel(schema)
+                ? _this.interfaceGenerator.generateMetadata(schema, allSchemas, ctx)
+                : '';
+        }).join('\n');
     };
     return ModuleGenerator;
 }());

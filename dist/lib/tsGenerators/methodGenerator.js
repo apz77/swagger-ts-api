@@ -4,6 +4,7 @@ var types_1 = require("../types");
 var tsInterfacesStub_1 = require("./tsInterfacesStub");
 var MethodGenerator = /** @class */ (function () {
     function MethodGenerator(methodTemplate, linkMethodTemplate) {
+        this.typeCheckCode = tsInterfacesStub_1.typeCheckCode;
         this.apiPrefix = 'Api.';
         this.methodTemplate = methodTemplate || tsInterfacesStub_1.methodStub;
         this.linkMethodTemplate = linkMethodTemplate || tsInterfacesStub_1.linkMethodStub;
@@ -12,12 +13,16 @@ var MethodGenerator = /** @class */ (function () {
         var result = '';
         var paramName = 'request';
         var paramFormName = 'form';
-        var requestType = method.request && method.request.name;
-        var url = !types_1.isEmptyModel(method.request)
+        var requestType = method.request
+            ? Array.isArray(method.request)
+                ? method.request.map(function (schema) { return schema.name; }).join(' | ')
+                : method.request.name
+            : null;
+        var url = requestType && method.url.includes('{')
             ? this.apiPrefix + "setParams(" + this.apiPrefix + "API_URL + '" + method.url + "', " + paramName + ", " + requestType + "Metadata)"
             : this.apiPrefix + "API_URL + '" + method.url + "'";
         var paramsArray = [];
-        if (!types_1.isEmptyModel(method.request)) {
+        if (requestType) {
             paramsArray.push(paramName + ": " + requestType);
         }
         if (method.response && method.response === 'link') {
@@ -36,7 +41,11 @@ var MethodGenerator = /** @class */ (function () {
         }
         else {
             result = this.methodTemplate.slice();
-            var resultType = (!types_1.isEmptyModel(method.response) && method.response && method.response.name) || 'void';
+            var resultType = method.response
+                ? Array.isArray(method.response)
+                    ? method.response.map(function (schema) { return schema.name; }).join(' | ')
+                    : (!types_1.isEmptyModel(method.response) && method.response && method.response.name) || 'void'
+                : 'void';
             var methodFormType = '';
             if (method.form && !types_1.isEmptyModel(method.form)) {
                 methodFormType = method.form.name;
@@ -65,18 +74,30 @@ var MethodGenerator = /** @class */ (function () {
             // {{body}}
             result = result.replace(/{{body}}/g, methodFormType
                 ? 'formData'
-                : !types_1.isEmptyModel(method.request) ? "JSON.stringify(" + paramName + ")" : 'null');
+                : requestType ? "JSON.stringify(" + paramName + ")" : 'null');
             // {{contentType}}
             result = result.replace(/{{contentType}}/g, methodFormType ? 'application/json' : 'multipart/mixed');
             // {{httpMethod}}
             result = result.replace(/{{httpMethod}}/g, method.method);
+            // {{typeCheckCode}}
+            result = result.replace(/{{typeCheckCode}}/g, this.generateTypeCheck(method.response));
             // {{comment}}
             result = result.replace(/{{comment}}/g, "/**\n  " + method.summary + "\n  " + method.description + "\n */\n");
-            if (ctx.tabs) {
-                result = result.split('\n').map(function (item) { return tsInterfacesStub_1.tabsStub.repeat(ctx.tabs) + item; }).join('\n');
-            }
+        }
+        if (ctx.tabs) {
+            result = result.split('\n').map(function (item) { return tsInterfacesStub_1.tabsStub.repeat(ctx.tabs) + item; }).join('\n');
         }
         return result;
+    };
+    MethodGenerator.prototype.generateTypeCheck = function (schema) {
+        var schemas = Array.isArray(schema) ? schema : [schema];
+        if (schemas.length === 0 || (schemas.length === 1 && types_1.isEmptyModel(schemas[0]))) {
+            return ';';
+        }
+        return this.typeCheckCode.replace(/{{responseTypeCheckFunction}}/g, schemas
+            .map(function (schema) {
+            return "is" + schema.name + "(decodedResponse)";
+        }).join(' || '));
     };
     return MethodGenerator;
 }());

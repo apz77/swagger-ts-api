@@ -37,6 +37,11 @@ var PathProcessor = /** @class */ (function () {
                 }
                 if (form && form.schema) {
                     requestForm = this.schemaFactory.translateSchema("" + tag + capitalizedName + "Form", form.schema, ctx);
+                    if (Array.isArray(requestForm)) {
+                        ctx.hasErrors = true;
+                        console.error(name + " Only simple schema for Form is supported.");
+                        requestForm = requestForm[0];
+                    }
                 }
             }
         }

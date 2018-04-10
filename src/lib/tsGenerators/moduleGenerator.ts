@@ -1,6 +1,6 @@
-import { InterfaceGenerator } from './interfaceGenerator';
+import { InterfaceGenerator, InterfaceGeneratorContext } from './interfaceGenerator';
 import { MethodGenerator } from './methodGenerator';
-import { AllSchemas, isEmptyModel, Method } from '../types';
+import { AllSchemas, isEmptyModel, Method, Schema } from '../types';
 import { defaultModuleMethodTemplate, defaultModuleTemplate, tabsStub } from './tsInterfacesStub';
 import { TypeCheckGenerator } from './typeCheckGenerator';
 
@@ -49,10 +49,7 @@ export class ModuleGenerator {
       // {{requestInterface}}
       methodResult = methodResult.replace(
         /{{requestInterface}}/g,
-        !isEmptyModel(method.request) && method.request
-          ? this.interfaceGenerator.generate(method.request, allSchemas, newCtx) + '\n\n' +
-            this.typeCheckGenerator.generate(method.request, newCtx) + '\n'
-          : '',
+        this.generateSchemasAndTypecheck(method.request, allSchemas, newCtx),
       );
 
       // {{requestInterface}}
@@ -64,22 +61,16 @@ export class ModuleGenerator {
           : '',
       );
 
-
       // {{responseInterface}}
       methodResult = methodResult.replace(
         /{{responseInterface}}/g,
-        !isEmptyModel(method.response) && method.response && method.response !== 'link'
-          ? this.interfaceGenerator.generate(method.response, allSchemas, { ...newCtx, isResponse: true }) + '\n\n' +
-            this.typeCheckGenerator.generate(method.response, newCtx) + '\n'
-          : '',
+        this.generateSchemasAndTypecheck(method.response, allSchemas, { ...newCtx, isResponse: true }),
       );
 
       // {{requestMetadata}}
       methodResult = methodResult.replace(
         /{{requestMetadata}}/g,
-        !isEmptyModel(method.request) && method.request
-          ? this.interfaceGenerator.generateMetadata(method.request, allSchemas, newCtx) + '\n'
-          : '',
+        this.generateSchemasMetadata(method.request, allSchemas, newCtx),
       );
 
       // {{formMetadata}}
@@ -90,18 +81,13 @@ export class ModuleGenerator {
           : '',
       );
 
-
       // {{responseMetadata}}
       methodResult = methodResult.replace(
         /{{responseMetadata}}/g,
-        !isEmptyModel(method.response) && method.response && method.response !== 'link'
-          ? this.interfaceGenerator.generateMetadata(
-              method.response,
-              allSchemas,
-              { ...newCtx, isResponse: true },
-            ) + '\n'
-          : '',
+        this.generateSchemasMetadata(method.response, allSchemas, { ...newCtx, isResponse: true }),
       );
+
+
 
       ctx.hasErrors = ctx.hasErrors || newCtx.hasErrors;
 
@@ -125,4 +111,35 @@ export class ModuleGenerator {
 
     return result;
   }
+
+  generateSchemasAndTypecheck(schema: Schema | Schema[] | null | 'link',
+                              allSchemas: AllSchemas,
+                              ctx: InterfaceGeneratorContext): string {
+    const schemas = Array.isArray(schema) ? schema : [schema];
+    return schemas
+      .filter(schema => !!schema && schema !== 'link')
+      .map((schema) => {
+        return !isEmptyModel(schema) && schema
+          ? this.interfaceGenerator.generate(schema as Schema, allSchemas, ctx) + '\n\n' +
+            this.typeCheckGenerator.generate(schema as Schema, ctx) + '\n'
+          : '';
+      }).join('\n');
+  }
+
+  generateSchemasMetadata(schema: Schema | Schema[] | null | 'link',
+                          allSchemas: AllSchemas,
+                          ctx: InterfaceGeneratorContext): string {
+
+    const schemas = Array.isArray(schema) ? schema : [schema];
+    return schemas
+      .filter(schema => !!schema && schema !== 'link')
+      .map((schema) => {
+        return !isEmptyModel(schema)
+            ? this.interfaceGenerator.generateMetadata(schema as Schema, allSchemas, ctx)
+            : '';
+      }).join('\n');
+
+  }
+
+
 }

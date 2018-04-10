@@ -32,7 +32,7 @@ export class PathProcessor {
 
     const capitalizedName = name.charAt(0).toLocaleUpperCase() + name.slice(1);
 
-    let requestSchema = null;
+    let requestSchema: Schema | Schema[] | 'link' | null = null;
     let requestForm = null;
 
     if (!swaggerMethod.requestBody ||
@@ -60,11 +60,17 @@ export class PathProcessor {
             form.schema,
             ctx,
           );
+
+          if (Array.isArray(requestForm)) {
+            ctx.hasErrors = true;
+            console.error(`${name} Only simple schema for Form is supported.`);
+            requestForm = requestForm[0];
+          }
         }
       }
     }
 
-    let responseSchema: Schema | 'link' | null = null;
+    let responseSchema: Schema | Schema[] | 'link' | null = null;
 
     if (!swaggerMethod.responses) {
       console.warn(`Method ${method} ${methodUrl} has no response`);

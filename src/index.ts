@@ -89,11 +89,21 @@ export function parseSwagger(swaggerResponse: any, ctx: SchemaFactoryContext):
 
 
     for (const schemaName in swaggerResponse.components.schemas) {
-      schemas[schemaName] = schemaFactory.translateSchema(
+      const parsedSchemas = schemaFactory.translateSchema(
         schemaName,
         swaggerResponse.components.schemas[schemaName],
         ctx,
       );
+      if (Array.isArray(parsedSchemas)) {
+        ctx.hasErrors = true;
+        console.error(`Multi schemas for models are not supported.`);
+        schemas[schemaName] = parsedSchemas[0];
+      } else if (parsedSchemas === null) {
+        console.error(`Null schema for model detected.`);
+      } else {
+        schemas[schemaName] = parsedSchemas;
+      }
+
     }
 
     const pathsProcessor = new PathsProcessor(new PathProcessor(schemaFactory));

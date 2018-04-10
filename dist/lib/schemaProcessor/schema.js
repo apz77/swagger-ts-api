@@ -6,6 +6,21 @@ var SchemaFactory = /** @class */ (function () {
         this.schemaPropertyFactory = schemaPropertyFactory;
     }
     SchemaFactory.prototype.translateSchema = function (name, schema, schemaFactoryContext) {
+        var _this = this;
+        if (schema.properties) {
+            return this.translateOneSchema(name, schema, schemaFactoryContext);
+        }
+        if (Array.isArray(schema.oneOf)) {
+            return schema.oneOf
+                .map(function (subschema, index) { return _this.translateSchema("" + name + index, subschema, schemaFactoryContext); })
+                .filter(function (item) { return !!item; });
+        }
+        return null;
+    };
+    SchemaFactory.prototype.translateOneSchema = function (name, schema, schemaFactoryContext) {
+        if (!schema.properties) {
+            return null;
+        }
         var resultSchema = {
             name: name,
             properties: {},

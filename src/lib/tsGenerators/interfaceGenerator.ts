@@ -153,13 +153,16 @@ export function getPropertyName(property: ObjectProperty, ctx: TypeToTsPropertyC
 
       return property.name.substr(0, property.name.length - 2);
 
-    } else if (property.name.indexOf('Id') >= 0) {
+    }
+
+    if (property.name.indexOf('Id') >= 0) {
 
       if (!ctx.isResponse) {
         console.warn(`Property ${ctx.schema.name}.${property.name} is a link, but does not end with Id.`);
       }
       return property.name.replace('Id', '');
     }
+
     if (!ctx.isResponse) {
       console.warn(`Property ${ctx.schema.name}.${property.name} is a link, but does not end with Id.`);
     }

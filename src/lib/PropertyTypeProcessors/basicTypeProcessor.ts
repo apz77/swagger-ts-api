@@ -31,27 +31,29 @@ export class BasicTypeProcessor implements TypeProcessor {
 
         // Very basic type
     if (!swaggerSchemaProperty.format || typeName === 'null') {
-      if (name.substr(-2) !== 'Id' || typeName === 'null' || name === 'emailId') {
-        return {
-          basicType: this.basicTypeMap[typeName],
-        };
-      }
-    } else if (this.formatMap[swaggerSchemaProperty.format]) {
+      return {
+        basicType: this.basicTypeMap[typeName],
+      };
+    }
+
+    if (this.formatMap[swaggerSchemaProperty.format]) {
             // formatted string
       if (typeName === 'string') {
         return {
           basicType: this.formatMap[swaggerSchemaProperty.format],
         };
-      } else if (swaggerSchemaProperty.type === 'null') {
+      }
+
+      if (swaggerSchemaProperty.type === 'null') {
         return {
           basicType: BasicType.NULL,
         };
-      } else {
-        ctx.hasErrors = true;
-        return getErrorType(
-          `Property ${name} has format ${swaggerSchemaProperty.format}, but not string|null type ${typeName}`,
-        );
       }
+
+      ctx.hasErrors = true;
+      return getErrorType(
+        `Property ${name} has format ${swaggerSchemaProperty.format}, but not string|null type ${typeName}`,
+      );
     }
 
     return null;
