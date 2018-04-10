@@ -27,6 +27,10 @@ export class MethodGenerator {
         : !isEmptyModel(method.request) ? method.request.name : null
       : null;
 
+    const requestMetadatas = method.request && requestType
+      ? this.getRequestMetadatas(method.request)
+      : null;
+
     const url = requestType && method.url.includes('{')
       ? `${this.apiPrefix}setParams(${this.apiPrefix}API_URL + \'${method.url}\', ${paramName}, ${requestType}Metadata)`
       : `${this.apiPrefix}API_URL + \'${method.url}\'`;
@@ -105,7 +109,7 @@ export class MethodGenerator {
         /{{body}}/g,
         methodFormType
           ? 'formData'
-          : requestType ? `${this.apiPrefix}serialize(${paramName})` : 'null');
+          : requestType ? `${this.apiPrefix}serialize(${paramName}, ${requestMetadatas})` : 'null');
 
       // {{contentType}}
       result = result.replace(
@@ -141,6 +145,11 @@ export class MethodGenerator {
       .map((schema) => {
         return `is${(schema as Schema).name}(decodedResponse)`;
       }). join(' || '));
+  }
+
+  getRequestMetadatas(schema: Schema | Schema[]) {
+    const schemas = Array.isArray(schema) ? schema : [schema];
+    return `[${schemas.map(schema => schema.name + 'Metadata').join(', ')}]`;
   }
 
 }

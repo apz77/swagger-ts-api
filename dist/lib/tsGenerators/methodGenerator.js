@@ -18,6 +18,9 @@ var MethodGenerator = /** @class */ (function () {
                 ? method.request.map(function (schema) { return schema.name; }).join(' | ')
                 : !types_1.isEmptyModel(method.request) ? method.request.name : null
             : null;
+        var requestMetadatas = method.request && requestType
+            ? this.getRequestMetadatas(method.request)
+            : null;
         var url = requestType && method.url.includes('{')
             ? this.apiPrefix + "setParams(" + this.apiPrefix + "API_URL + '" + method.url + "', " + paramName + ", " + requestType + "Metadata)"
             : this.apiPrefix + "API_URL + '" + method.url + "'";
@@ -74,7 +77,7 @@ var MethodGenerator = /** @class */ (function () {
             // {{body}}
             result = result.replace(/{{body}}/g, methodFormType
                 ? 'formData'
-                : requestType ? this.apiPrefix + "serialize(" + paramName + ")" : 'null');
+                : requestType ? this.apiPrefix + "serialize(" + paramName + ", " + requestMetadatas + ")" : 'null');
             // {{contentType}}
             result = result.replace(/{{contentType}}/g, methodFormType ? 'application/json' : 'multipart/mixed');
             // {{httpMethod}}
@@ -98,6 +101,10 @@ var MethodGenerator = /** @class */ (function () {
             .map(function (schema) {
             return "is" + schema.name + "(decodedResponse)";
         }).join(' || '));
+    };
+    MethodGenerator.prototype.getRequestMetadatas = function (schema) {
+        var schemas = Array.isArray(schema) ? schema : [schema];
+        return "[" + schemas.map(function (schema) { return schema.name + 'Metadata'; }).join(', ') + "]";
     };
     return MethodGenerator;
 }());
