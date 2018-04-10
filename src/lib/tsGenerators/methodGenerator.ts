@@ -24,7 +24,7 @@ export class MethodGenerator {
     const requestType = method.request
       ? Array.isArray(method.request)
         ? method.request.map(schema => schema.name).join(' | ')
-        : method.request.name
+        : !isEmptyModel(method.request) ? method.request.name : null
       : null;
 
     const url = requestType && method.url.includes('{')

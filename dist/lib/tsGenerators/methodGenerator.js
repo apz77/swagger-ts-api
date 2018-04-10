@@ -16,7 +16,7 @@ var MethodGenerator = /** @class */ (function () {
         var requestType = method.request
             ? Array.isArray(method.request)
                 ? method.request.map(function (schema) { return schema.name; }).join(' | ')
-                : method.request.name
+                : !types_1.isEmptyModel(method.request) ? method.request.name : null
             : null;
         var url = requestType && method.url.includes('{')
             ? this.apiPrefix + "setParams(" + this.apiPrefix + "API_URL + '" + method.url + "', " + paramName + ", " + requestType + "Metadata)"
