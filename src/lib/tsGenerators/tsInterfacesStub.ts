@@ -1,3 +1,5 @@
+/* tslint:disable:max-line-length */
+
 export const tabsStub: string = '  ';
 
 export const tsInterfacesHeader =
@@ -70,7 +72,7 @@ export const methodStub =
   '{{comment}}' +
   'export const {{methodName}} = ({{methodParam}}): Promise<{{methodResultType}}> => {\n' +
   '\n' +
-  '  const headers = { \'Content-Type\': \'{{contentType}}\' };\n' +
+  '  const headers = Api.getHeaders({{headersParams}});\n' +
   '{{formPrepare}}\n' +
   '  return fetch(\n' +
   '    {{url}},\n' +
@@ -131,7 +133,7 @@ export const defaultFileTemplate =
 export const defaultIndexTemplate =
   '/* tslint:disable */\n\n' +
   '/* Please define in ../baseTypes.ts the following types, const, and function: */\n' +
-  '/* BaseModel, UUID, Email, Hostname, DateTime, DateOnly, Duration, Permit, API_URL, setParams */\n' +
+  '/* BaseModel, UUID, Email, Hostname, DateTime, DateOnly, Duration, Permit, API_URL, setParams, getHeaders, serialize */\n' +
   'export * from \'../baseTypes\';\n\n' +
   '{{files}}\n' +
   '{{commonTypes}}\n'

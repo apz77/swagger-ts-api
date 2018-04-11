@@ -36,8 +36,11 @@ export class MethodGenerator {
       : `${this.apiPrefix}API_URL + \'${method.url}\'`;
     const paramsArray = [];
 
+    let headerParams = '';
+
     if (requestType) {
       paramsArray.push(`${paramName}: ${requestType}`);
+      headerParams = paramName;
     }
 
     if (method.response && method.response === 'link') {
@@ -50,6 +53,9 @@ export class MethodGenerator {
 
       // {{methodParam}}
       result = result.replace(/{{methodParam}}/g, methodParam);
+
+      // {{headersParams}}
+      result = result.replace(/{{headersParams}}/g, headerParams);
 
       // {{url}}
       result = result.replace(/{{url}}/g, url);
@@ -86,6 +92,9 @@ export class MethodGenerator {
 
       // {{methodResultType}}
       result = result.replace(/{{methodResultType}}/g, resultType);
+
+      // {{headersParams}}
+      result = result.replace(/{{headersParams}}/g, headerParams);
 
       // {{url}}
       result = result.replace(/{{url}}/g, url);

@@ -1,4 +1,5 @@
 "use strict";
+/* tslint:disable:max-line-length */
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.tabsStub = '  ';
 exports.tsInterfacesHeader = '/**\n' +
@@ -60,7 +61,7 @@ exports.defaultFieldMetadataTemplate = 'export const {{name}} = {\n' +
 exports.methodStub = '{{comment}}' +
     'export const {{methodName}} = ({{methodParam}}): Promise<{{methodResultType}}> => {\n' +
     '\n' +
-    '  const headers = { \'Content-Type\': \'{{contentType}}\' };\n' +
+    '  const headers = Api.getHeaders({{headersParams}});\n' +
     '{{formPrepare}}\n' +
     '  return fetch(\n' +
     '    {{url}},\n' +
@@ -109,7 +110,7 @@ exports.defaultFileTemplate = '/* tslint:disable:max-line-length */\n\n' +
     '{{module}}\n';
 exports.defaultIndexTemplate = '/* tslint:disable */\n\n' +
     '/* Please define in ../baseTypes.ts the following types, const, and function: */\n' +
-    '/* BaseModel, UUID, Email, Hostname, DateTime, DateOnly, Duration, Permit, API_URL, setParams */\n' +
+    '/* BaseModel, UUID, Email, Hostname, DateTime, DateOnly, Duration, Permit, API_URL, setParams, getHeaders, serialize */\n' +
     'export * from \'../baseTypes\';\n\n' +
     '{{files}}\n' +
     '{{commonTypes}}\n';

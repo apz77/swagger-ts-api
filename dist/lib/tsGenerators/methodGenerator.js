@@ -25,8 +25,10 @@ var MethodGenerator = /** @class */ (function () {
             ? this.apiPrefix + "setParams(" + this.apiPrefix + "API_URL + '" + method.url + "', " + paramName + ", " + requestType + "Metadata)"
             : this.apiPrefix + "API_URL + '" + method.url + "'";
         var paramsArray = [];
+        var headerParams = '';
         if (requestType) {
             paramsArray.push(paramName + ": " + requestType);
+            headerParams = paramName;
         }
         if (method.response && method.response === 'link') {
             var methodParam = paramsArray.join(', ');
@@ -35,6 +37,8 @@ var MethodGenerator = /** @class */ (function () {
             result = result.replace(/{{methodName}}/g, method.name);
             // {{methodParam}}
             result = result.replace(/{{methodParam}}/g, methodParam);
+            // {{headersParams}}
+            result = result.replace(/{{headersParams}}/g, headerParams);
             // {{url}}
             result = result.replace(/{{url}}/g, url);
             // {{contentType}}
@@ -61,6 +65,8 @@ var MethodGenerator = /** @class */ (function () {
             result = result.replace(/{{methodParam}}/g, methodParam);
             // {{methodResultType}}
             result = result.replace(/{{methodResultType}}/g, resultType);
+            // {{headersParams}}
+            result = result.replace(/{{headersParams}}/g, headerParams);
             // {{url}}
             result = result.replace(/{{url}}/g, url);
             // {{formPrepare}}
