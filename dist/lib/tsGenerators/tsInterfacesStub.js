@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.tabsStub = '  ';
 exports.tsInterfacesHeader = '/**\n' +
-    ' * Please define the following types in generateTypescriptIntefacesWithMetadata stub1\n' +
+    ' * Please define the following types in generateTypescriptIntefacesWithMetadata stub\n' +
     ' * Permit, Hostname, Email, Duration, DateTime, DateOnly, FolderType, InvitationStatus\n' +
     ' */\n' +
     '\n' +
@@ -73,7 +73,7 @@ exports.methodStub = '{{comment}}' +
     '    },\n' +
     '  ).then((response: any) => {\n' +
     '    if (!response.ok) {\n' +
-    '      throw(response);\n' +
+    '      return Api.processError(response);\n' +
     '    }\n' +
     '    const contentType = response.headers.has(\'Content-Type\') && response.headers.get(\'Content-Type\'); \n' +
     '    if (contentType && contentType.indexOf(\'application/json\') > -1) {\n' +
@@ -109,7 +109,7 @@ exports.defaultFileTemplate = '/* tslint:disable:max-line-length */\n\n' +
     '{{interface}}' +
     '{{module}}\n';
 exports.defaultIndexTemplate = '/* tslint:disable */\n\n' +
-    '/* Please define in ../baseTypes.ts the following types, const, and function: */\n' +
+    '/* Please define in ../baseTypes.ts the following types, const, and function: processError */\n' +
     '/* BaseModel, UUID, Email, Hostname, DateTime, DateOnly, Duration, Permit, API_URL, setParams, getHeaders, serialize */\n' +
     'export * from \'../baseTypes\';\n\n' +
     '{{files}}\n' +
