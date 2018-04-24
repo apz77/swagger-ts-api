@@ -12,7 +12,7 @@ var BasicType;
     BasicType["DATE"] = "date";
     BasicType["DATETIME"] = "datetime";
     BasicType["DURATION"] = "duration";
-    BasicType["HOSTNAME"] = "Hostanme";
+    BasicType["HOSTNAME"] = "Hostname";
     BasicType["EMAIL"] = "Email";
     BasicType["PERMIT"] = "Permit";
     BasicType["FOLDERTYPE"] = "FolderType";

@@ -77,7 +77,7 @@ export enum BasicType {
     DATE = 'date',
     DATETIME = 'datetime',
     DURATION = 'duration',
-    HOSTNAME = 'Hostanme',
+    HOSTNAME = 'Hostname',
     EMAIL = 'Email',
     PERMIT = 'Permit',
     FOLDERTYPE = 'FolderType',
