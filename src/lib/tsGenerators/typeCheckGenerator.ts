@@ -1,5 +1,6 @@
 import { tabsStub, typeCheckTemplate } from './tsInterfacesStub';
 import { ObjectProperty, ObjectType, Schema } from '../types';
+import { getPropertyName } from './interfaceGenerator';
 
 export interface TypeCheckGeneratorContext {
   hasErrors: boolean;
@@ -15,17 +16,23 @@ export class TypeCheckGenerator {
     let result = this.template.slice();
     const { properties } = schema;
 
+    const newCtx = {
+      ...ctx,
+      schema,
+      isResponse: false,
+    }
+
     result = result.replace(/{{name}}/g, schema.name);
 
     // {{requiredProps}}
     let props = Object.keys(properties)
       .filter(key => properties[key].isRequired && !properties[key].types.find(type => (type as any).properties))
-      .map(key => `arg.${properties[key].name} !== ${this.apiPrefix}v0`);
+      .map(key => `arg.${getPropertyName(properties[key], newCtx)} !== ${this.apiPrefix}v0`);
 
     const objectProps = Object.keys(properties)
       .filter(key => properties[key].isRequired && properties[key].types.find(type => (type as any).properties))
 
-    props = props.concat(objectProps.map(key => `Object(arg.${properties[key].name}) === arg.${properties[key].name}`))
+    props = props.concat(objectProps.map(key => `Object(arg.${getPropertyName(properties[key], newCtx)}) === arg.${properties[key].name}`))
 
 
     for (const subObject of objectProps) {
@@ -34,7 +41,7 @@ export class TypeCheckGenerator {
       if (subProps) {
         const subPropProps = (subProps as ObjectType).properties;
         props = props.concat(
-          Object.keys(subPropProps).map(key => `arg.${subProp.name}.${subPropProps[key].name} !== ${this.apiPrefix}v0`),
+          Object.keys(subPropProps).map(key => `arg.${getPropertyName(subProp, newCtx)}.${subPropProps[key].name} !== ${this.apiPrefix}v0`),
         );
       }
     }
