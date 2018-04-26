@@ -41,7 +41,9 @@ export class TypeCheckGenerator {
       if (subProps) {
         const subPropProps = (subProps as ObjectType).properties;
         props = props.concat(
-          Object.keys(subPropProps).map(key => `arg.${getPropertyName(subProp, newCtx)}.${subPropProps[key].name} !== ${this.apiPrefix}v0`),
+          Object.keys(subPropProps)
+            .filter(key => !!subPropProps[key].isRequired)
+            .map(key => `arg.${getPropertyName(subProp, newCtx)}.${subPropProps[key].name} !== ${this.apiPrefix}v0`),
         );
       }
     }

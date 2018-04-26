@@ -33,7 +33,9 @@ var TypeCheckGenerator = /** @class */ (function () {
             var subProps = subProp.types.find(function (type) { return type.properties; });
             if (subProps) {
                 var subPropProps_1 = subProps.properties;
-                props = props.concat(Object.keys(subPropProps_1).map(function (key) { return "arg." + interfaceGenerator_1.getPropertyName(subProp, newCtx) + "." + subPropProps_1[key].name + " !== " + _this.apiPrefix + "v0"; }));
+                props = props.concat(Object.keys(subPropProps_1)
+                    .filter(function (key) { return !!subPropProps_1[key].isRequired; })
+                    .map(function (key) { return "arg." + interfaceGenerator_1.getPropertyName(subProp, newCtx) + "." + subPropProps_1[key].name + " !== " + _this.apiPrefix + "v0"; }));
             }
         };
         for (var _i = 0, objectProps_1 = objectProps; _i < objectProps_1.length; _i++) {
