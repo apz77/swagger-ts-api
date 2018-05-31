@@ -134,7 +134,23 @@ export const defaultIndexTemplate =
   '/* tslint:disable */\n\n' +
   '/* Please define in ../baseTypes.ts the following types, const, and function: processError */\n' +
   '/* BaseModel, UUID, Email, Hostname, DateTime, DateOnly, Duration, Permit, API_URL, setParams, getHeaders, serialize */\n' +
-  'export * from \'../baseTypes\';\n\n' +
+  'export {\n' +
+  '  BaseModel,\n' +
+  '  UUID,\n' +
+  '  Email,\n' +
+  '  Hostname,\n' +
+  '  DateTime,\n' +
+  '  DateOnly,\n' +
+  '  Duration,\n' +
+  '  Permit,\n' +
+  '  API_URL,\n' +
+  '  setParams,\n' +
+  '  getHeaders,\n' +
+  '  serialize,\n' +
+  '  processError,\n' +
+  '  FolderType,\n' +
+  '  InvitationStatus,\n' +
+  '} from \'../baseTypes\';\n' +
   '{{files}}\n' +
   '{{commonTypes}}\n'
 
