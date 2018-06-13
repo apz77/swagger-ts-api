@@ -83,7 +83,9 @@ var MethodGenerator = /** @class */ (function () {
             // {{body}}
             result = result.replace(/{{body}}/g, methodFormType
                 ? 'formData'
-                : requestType ? this.apiPrefix + "serialize(" + paramName + ", " + requestMetadatas + ")" : 'null');
+                : requestType && (method.method === 'post' || method.method === 'put')
+                    ? this.apiPrefix + "serialize(" + paramName + ", " + requestMetadatas + ")"
+                    : 'null');
             // {{contentType}}
             result = result.replace(/{{contentType}}/g, methodFormType ? 'application/json' : 'multipart/mixed');
             // {{httpMethod}}

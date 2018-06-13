@@ -118,7 +118,9 @@ export class MethodGenerator {
         /{{body}}/g,
         methodFormType
           ? 'formData'
-          : requestType ? `${this.apiPrefix}serialize(${paramName}, ${requestMetadatas})` : 'null');
+          : requestType && (method.method === 'post' || method.method === 'put')
+            ? `${this.apiPrefix}serialize(${paramName}, ${requestMetadatas})`
+            : 'null');
 
       // {{contentType}}
       result = result.replace(
