@@ -71,7 +71,7 @@ exports.methodStub = '{{comment}}' +
     '      method: \'{{httpMethod}}\',\n' +
     '      credentials: \'include\',\n' +
     '    },\n' +
-    '  ).then((response: any) => {\n' +
+    '  ).then((response: Response) => {\n' +
     '    if (!response.ok) {\n' +
     '      return Api.processError(response);\n' +
     '    }\n' +
