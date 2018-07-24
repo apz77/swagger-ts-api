@@ -27,12 +27,18 @@ export class MethodGenerator {
         : !isEmptyModel(method.request) ? `${ctx.tag}.${method.request.name}` : null
       : null;
 
+    const requestMetadata = method.request
+        ? Array.isArray(method.request)
+            ? null
+            : !isEmptyModel(method.request) ? `${method.request.name}Metadata` : null
+        : null;
+
     const requestMetadatas = method.request && requestType
-      ? this.getRequestMetadatas(method.request)
-      : null;
+    ? this.getRequestMetadatas(method.request)
+    : null;
 
     const url = requestType && method.url.includes('{')
-      ? `${this.apiPrefix}setParams(${this.apiPrefix}API_URL + \'${method.url}\', ${paramName}, ${requestType}Metadata)`
+      ? `${this.apiPrefix}setParams(${this.apiPrefix}API_URL + \'${method.url}\', ${paramName}, ${requestMetadata})`
       : `${this.apiPrefix}API_URL + \'${method.url}\'`;
     const paramsArray = [];
 

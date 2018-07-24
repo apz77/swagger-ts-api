@@ -17,11 +17,16 @@ var MethodGenerator = /** @class */ (function () {
                 ? method.request.map(function (schema) { return ctx.tag + "." + schema.name; }).join(' | ')
                 : !types_1.isEmptyModel(method.request) ? ctx.tag + "." + method.request.name : null
             : null;
+        var requestMetadata = method.request
+            ? Array.isArray(method.request)
+                ? null
+                : !types_1.isEmptyModel(method.request) ? method.request.name + "Metadata" : null
+            : null;
         var requestMetadatas = method.request && requestType
             ? this.getRequestMetadatas(method.request)
             : null;
         var url = requestType && method.url.includes('{')
-            ? this.apiPrefix + "setParams(" + this.apiPrefix + "API_URL + '" + method.url + "', " + paramName + ", " + requestType + "Metadata)"
+            ? this.apiPrefix + "setParams(" + this.apiPrefix + "API_URL + '" + method.url + "', " + paramName + ", " + requestMetadata + ")"
             : this.apiPrefix + "API_URL + '" + method.url + "'";
         var paramsArray = [];
         var headerParams = '';
