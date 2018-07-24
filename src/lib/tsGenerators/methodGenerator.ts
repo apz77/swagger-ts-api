@@ -1,7 +1,8 @@
 import { Method, isEmptyModel, Schema } from '../types';
-import { linkMethodStub, methodStub, tabsStub, typeCheckCode } from './tsInterfacesStub';
+import { linkMethodStub, methodStub, tabsStub } from './tsInterfacesStub';
 
 export interface MethodGeneratorContext {
+  tag: string;
   hasErrors: boolean;
   tabs: number;
 }
@@ -9,7 +10,6 @@ export interface MethodGeneratorContext {
 export class MethodGenerator {
   private methodTemplate: string;
   private linkMethodTemplate: string;
-  private typeCheckCode = typeCheckCode;
   protected apiPrefix = 'Api.';
 
   constructor(methodTemplate?: string, linkMethodTemplate?: string) {
@@ -39,7 +39,7 @@ export class MethodGenerator {
     let headerParams = '';
 
     if (requestType) {
-      paramsArray.push(`${paramName}: ${requestType}`);
+      paramsArray.push(`${paramName}: ${ctx.tag}.${requestType}`);
       headerParams = paramName;
     }
 
@@ -71,18 +71,21 @@ export class MethodGenerator {
       const resultType =
         method.response
           ? Array.isArray(method.response)
-            ? method.response.map(schema => schema.name).join(' | ')
-            : (!isEmptyModel(method.response) && method.response && method.response.name) || 'void'
+            ? method.response.map(schema => ctx.tag + '.' + schema.name).join(' | ')
+            : (!isEmptyModel(method.response) && method.response && (ctx.tag + '.' + method.response.name)) || 'void'
           : 'void';
 
       let methodFormType: string = '';
 
       if (method.form && !isEmptyModel(method.form)) {
         methodFormType = method.form.name;
-        paramsArray.push(`${paramFormName}: ${methodFormType}`);
+        paramsArray.push(`${paramFormName}: ${ctx.tag}.${methodFormType}`);
       }
 
       const methodParam = paramsArray.join(', ');
+
+      // {{methodName}}
+      result = result.replace(/{{apiPrefix}}/g, this.apiPrefix);
 
       // {{methodName}}
       result = result.replace(/{{methodName}}/g, method.name);
@@ -107,20 +110,25 @@ export class MethodGenerator {
           '}\n'
         : '';
 
-      if (ctx.tabs && formPrepare) {
-        formPrepare = formPrepare.split('\n').map(item => tabsStub.repeat(ctx.tabs) + item).join('\n');
+      if (formPrepare) {
+        formPrepare = formPrepare.split('\n').map(item => tabsStub.repeat(ctx.tabs + 1) + item).join('\n');
       }
 
       result = result.replace(/{{formPrepare}}/g, formPrepare);
 
+      if (formPrepare) {
+        result = result.replace(/{{formData}}/g, 'formData');
+      } else {
+        result = result.replace(/{{formData}}/g, 'null');
+      }
+
       // {{body}}
       result = result.replace(
         /{{body}}/g,
-        methodFormType
-          ? 'formData'
-          : requestType && (method.method === 'post' || method.method === 'put')
+        requestType && (method.method === 'post' || method.method === 'put')
             ? `${this.apiPrefix}serialize(${paramName}, ${requestMetadatas})`
-            : 'null');
+            : 'null',
+      );
 
       // {{contentType}}
       result = result.replace(
@@ -132,7 +140,7 @@ export class MethodGenerator {
       result = result.replace(/{{httpMethod}}/g, method.method);
 
       // {{typeCheckCode}}
-      result = result.replace(/{{typeCheckCode}}/g, this.generateTypeCheck(method.response));
+      result = result.replace(/{{responseTypeCheckFunction}}/g, this.generateTypeCheck(method.response, ctx.tag));
 
       // {{comment}}
       result = result.replace(/{{comment}}/g, `/**\n  ${method.summary}\n  ${method.description}\n */\n`);
@@ -146,16 +154,15 @@ export class MethodGenerator {
   }
 
 
-  generateTypeCheck(schema: Schema | Schema[] | null) {
+  generateTypeCheck(schema: Schema | Schema[] | null, tag: string) {
     const schemas = Array.isArray(schema) ? schema : [schema];
     if (schemas.length === 0 || (schemas.length === 1 && isEmptyModel(schemas[0]))) {
-      return ';';
+      return 'null';
     }
 
-    return this.typeCheckCode.replace(/{{responseTypeCheckFunction}}/g, schemas
-      .map((schema) => {
-        return `is${(schema as Schema).name}(decodedResponse)`;
-      }). join(' || '));
+    return '[' + schemas.map((schema) => {
+      return `${tag}.is${(schema as Schema).name}`;
+    }). join(', ') + ']';
   }
 
   getRequestMetadatas(schema: Schema | Schema[]) {

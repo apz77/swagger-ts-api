@@ -11,10 +11,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var types_1 = require("../types");
 var tsInterfacesStub_1 = require("./tsInterfacesStub");
 var ModuleGenerator = /** @class */ (function () {
-    function ModuleGenerator(interfaceGenerator, methodGenerator, typeCheckGenerator, methodTemplate, moduleTemplate) {
+    function ModuleGenerator(interfaceGenerator, methodGenerator, typeCheckGenerator, indexFileGenerator, methodTemplate, moduleTemplate) {
         this.interfaceGenerator = interfaceGenerator;
         this.methodGenerator = methodGenerator;
         this.typeCheckGenerator = typeCheckGenerator;
+        this.indexFileGenerator = indexFileGenerator;
         this.methodTemplate = methodTemplate || tsInterfacesStub_1.defaultModuleMethodTemplate;
         this.moduleTemplate = moduleTemplate || tsInterfacesStub_1.defaultModuleTemplate;
     }
@@ -22,20 +23,11 @@ var ModuleGenerator = /** @class */ (function () {
         var _this = this;
         var result = this.moduleTemplate.slice();
         var tabs = typeof ctx.tabs === 'number' ? ctx.tabs : 0;
+        var newCtx = __assign({}, ctx, { usedTypes: {}, isResponse: false, tabs: tabs + 1 });
         var allMethods = methods.map(function (method) {
             var methodResult = _this.methodTemplate.slice();
-            var newCtx = __assign({}, ctx, { isResponse: false, tabs: tabs + 1 });
             // {{method}}
-            methodResult = methodResult.replace(/{{method}}/g, _this.methodGenerator.generateMethod(method, newCtx) + '\n');
-            // {{requestInterface}}
-            methodResult = methodResult.replace(/{{requestInterface}}/g, _this.generateSchemasAndTypecheck(method.request, allSchemas, newCtx));
-            // {{requestInterface}}
-            methodResult = methodResult.replace(/{{formInterface}}/g, !types_1.isEmptyModel(method.form) && method.form
-                ? _this.interfaceGenerator.generate(method.form, allSchemas, newCtx) + '\n\n' +
-                    _this.typeCheckGenerator.generate(method.form, newCtx) + '\n'
-                : '');
-            // {{responseInterface}}
-            methodResult = methodResult.replace(/{{responseInterface}}/g, _this.generateSchemasAndTypecheck(method.response, allSchemas, __assign({}, newCtx, { isResponse: true })));
+            methodResult = methodResult.replace(/{{method}}/g, _this.methodGenerator.generateMethod(method, __assign({}, ctx, { tag: moduleName })) + '\n');
             // {{requestMetadata}}
             methodResult = methodResult.replace(/{{requestMetadata}}/g, _this.generateSchemasMetadata(method.request, allSchemas, newCtx));
             // {{formMetadata}}
@@ -50,9 +42,26 @@ var ModuleGenerator = /** @class */ (function () {
         result = result.replace(/{{ModuleName}}/g, moduleName);
         // {{allMethods}}
         result = result.replace(/{{allMethods}}/g, allMethods);
+        // {{imports}}
+        result = result.replace(/{{imports}}/g, "import * as " + moduleName + " from './" + (moduleName.charAt(0).toLocaleLowerCase() + moduleName.slice(1)) + "';");
+        // {{indexImport}}
+        result = result.replace(/{{indexImport}}/g, "import * as Api from './" + this.indexFileGenerator.getIndexFileName() + "';");
         if (tabs) {
             result = result.split('\n').map(function (item) { return tsInterfacesStub_1.tabsStub.repeat(tabs) + item; }).join('\n');
         }
+        return result;
+    };
+    ModuleGenerator.prototype.generateMethodTypes = function (method, allSchemas, ctx) {
+        var result = '';
+        // {{requestInterface}}
+        result += this.generateSchemasAndTypecheck(method.request, allSchemas, ctx);
+        // {{requestInterface}}
+        result += !types_1.isEmptyModel(method.form) && method.form
+            ? this.interfaceGenerator.generate(method.form, allSchemas, ctx) + '\n\n' +
+                this.typeCheckGenerator.generate(method.form, ctx) + '\n'
+            : '';
+        // {{responseInterface}}
+        result += this.generateSchemasAndTypecheck(method.response, allSchemas, __assign({}, ctx, { isResponse: true }));
         return result;
     };
     ModuleGenerator.prototype.generateSchemasAndTypecheck = function (schema, allSchemas, ctx) {
@@ -77,6 +86,9 @@ var ModuleGenerator = /** @class */ (function () {
                 ? _this.interfaceGenerator.generateMetadata(schema, allSchemas, ctx)
                 : '';
         }).join('\n');
+    };
+    ModuleGenerator.prototype.getFilename = function (tag) {
+        return tag.charAt(0).toLocaleLowerCase() + tag.slice(1) + 'Methods';
     };
     return ModuleGenerator;
 }());

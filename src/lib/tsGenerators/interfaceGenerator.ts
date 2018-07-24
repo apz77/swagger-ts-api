@@ -8,6 +8,7 @@ import {
 } from './tsInterfacesStub';
 
 export interface InterfaceGeneratorContext {
+  usedTypes: {[tag: string]: any};
   hasErrors: boolean;
   isResponse: boolean;
   tabs: number;

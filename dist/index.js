@@ -18,10 +18,11 @@ var pathsProcessor_1 = require("./lib/pathsProcessor/pathsProcessor");
 var pathProcessor_1 = require("./lib/pathsProcessor/pathProcessor");
 var methodGenerator_1 = require("./lib/tsGenerators/methodGenerator");
 var moduleGenerator_1 = require("./lib/tsGenerators/moduleGenerator");
-var fileGenerator_1 = require("./lib/tsGenerators/fileGenerator");
+var typeFileGenerator_1 = require("./lib/tsGenerators/typeFileGenerator");
 var fs = require("fs");
 var rimraf = require("rimraf");
 var typeCheckGenerator_1 = require("./lib/tsGenerators/typeCheckGenerator");
+var indexFileGenerator_1 = require("./lib/tsGenerators/indexFileGenerator");
 function clearDirectory(dir, callback) {
     rimraf(dir, callback);
 }
@@ -37,20 +38,29 @@ function generateTypeScriptFiles(filesPath, paths, schemas, ctx) {
     var methodToTsGenerator = new methodGenerator_1.MethodGenerator();
     var interfaceGenerator = new interfaceGenerator_1.InterfaceGenerator();
     var typeCheckGenerator = new typeCheckGenerator_1.TypeCheckGenerator();
-    var moduleGenerator = new moduleGenerator_1.ModuleGenerator(interfaceGenerator, methodToTsGenerator, typeCheckGenerator);
-    var fileGenerator = new fileGenerator_1.FileGenerator(moduleGenerator, interfaceGenerator, typeCheckGenerator);
+    var indexFileGenerator = new indexFileGenerator_1.IndexFileGenerator(interfaceGenerator);
+    var moduleGenerator = new moduleGenerator_1.ModuleGenerator(interfaceGenerator, methodToTsGenerator, typeCheckGenerator, indexFileGenerator);
+    var typeFileGenerator = new typeFileGenerator_1.TypeFileGenerator(moduleGenerator, interfaceGenerator, typeCheckGenerator, indexFileGenerator);
     var tags = Object.keys(paths).concat(Object.keys(schemas)).filter(function (value, index, array) { return array.indexOf(value) === index; });
     for (var _i = 0, tags_1 = tags; _i < tags_1.length; _i++) {
         var tag = tags_1[_i];
-        var filename = filesPath + fileGenerator.getFileName(tag) + '.ts';
-        var fileContent = fileGenerator.generate(paths, schemas, tag, ctx);
+        var filename = filesPath + typeFileGenerator.getFileName(tag) + '.ts';
+        var fileContent = typeFileGenerator.generate(paths, schemas, tag, ctx);
         if (fs.existsSync(filename)) {
             fs.unlinkSync(filename);
         }
         fs.appendFileSync(filename, fileContent);
+        if (paths[tag]) {
+            var moduleFilename = filesPath + moduleGenerator.getFilename(tag) + '.ts';
+            var moduleFileContent = moduleGenerator.generate(tag, paths[tag], schemas, __assign({}, ctx, { tabs: 0 }));
+            if (fs.existsSync(moduleFilename)) {
+                fs.unlinkSync(moduleFilename);
+            }
+            fs.appendFileSync(moduleFilename, moduleFileContent);
+        }
     }
-    var indexFile = filesPath + fileGenerator.getIndexFileName() + '.ts';
-    var indexFileContent = fileGenerator.generateIndex(schemas, tags);
+    var indexFile = filesPath + indexFileGenerator.getIndexFileName() + '.ts';
+    var indexFileContent = indexFileGenerator.generateIndex(schemas, tags);
     if (fs.existsSync(indexFile)) {
         fs.unlinkSync(indexFile);
     }
@@ -99,7 +109,7 @@ exports.parseSwagger = parseSwagger;
 // Some other helper files
 function generateTypescriptIntefacesWithMetadata(schemas, ctx, stub, basicTypesStub) {
     var interfaceGenerator = new interfaceGenerator_1.InterfaceGenerator();
-    var newCtx = __assign({}, ctx, { isResponse: false, tabs: 0 });
+    var newCtx = __assign({}, ctx, { usedTypes: {}, isResponse: false, tabs: 0 });
     var interfaces = Object.keys(schemas).map(function (schemaName) {
         return interfaceGenerator.generate(schemas[schemaName], schemas, newCtx) +
             interfaceGenerator.generateMetadata(schemas[schemaName], schemas, newCtx);
@@ -116,9 +126,10 @@ function generateTypeScriptModule(paths, schemas, ctx) {
     var methodToTsGenerator = new methodGenerator_1.MethodGenerator();
     var interfaceGenerator = new interfaceGenerator_1.InterfaceGenerator();
     var typeCheckGenerator = new typeCheckGenerator_1.TypeCheckGenerator();
-    var moduleGenerator = new moduleGenerator_1.ModuleGenerator(interfaceGenerator, methodToTsGenerator, typeCheckGenerator);
+    var indexFileGenerator = new indexFileGenerator_1.IndexFileGenerator(interfaceGenerator);
+    var moduleGenerator = new moduleGenerator_1.ModuleGenerator(interfaceGenerator, methodToTsGenerator, typeCheckGenerator, indexFileGenerator);
     return Object.keys(paths).map(function (moduleName) {
-        return moduleGenerator.generate(moduleName, paths[moduleName], schemas, ctx);
+        return moduleGenerator.generate(moduleName, paths[moduleName], schemas, __assign({}, ctx, { tabs: 0 }));
     }).join('\n');
 }
 exports.generateTypeScriptModule = generateTypeScriptModule;

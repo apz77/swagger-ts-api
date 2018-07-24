@@ -9,10 +9,11 @@ import { PathsProcessor } from './lib/pathsProcessor/pathsProcessor';
 import { PathProcessor } from './lib/pathsProcessor/pathProcessor';
 import { MethodGenerator } from './lib/tsGenerators/methodGenerator';
 import { ModuleGenerator } from './lib/tsGenerators/moduleGenerator';
-import { FileGenerator } from './lib/tsGenerators/fileGenerator';
+import { TypeFileGenerator } from './lib/tsGenerators/typeFileGenerator';
 import * as fs from 'fs';
 import * as rimraf from 'rimraf';
 import { TypeCheckGenerator } from './lib/tsGenerators/typeCheckGenerator';
+import { IndexFileGenerator } from './lib/tsGenerators/indexFileGenerator';
 
 export function clearDirectory(dir: string, callback: (error: Error) => void) {
   rimraf(dir, callback);
@@ -33,8 +34,10 @@ export function generateTypeScriptFiles(filesPath: string,
   const methodToTsGenerator = new MethodGenerator();
   const interfaceGenerator = new InterfaceGenerator();
   const typeCheckGenerator = new TypeCheckGenerator();
-  const moduleGenerator = new ModuleGenerator(interfaceGenerator, methodToTsGenerator, typeCheckGenerator);
-  const fileGenerator = new FileGenerator(moduleGenerator, interfaceGenerator, typeCheckGenerator);
+  const indexFileGenerator = new IndexFileGenerator(interfaceGenerator);
+  const moduleGenerator = new ModuleGenerator(interfaceGenerator, methodToTsGenerator, typeCheckGenerator, indexFileGenerator);
+  const typeFileGenerator = new TypeFileGenerator(moduleGenerator, interfaceGenerator, typeCheckGenerator, indexFileGenerator);
+
 
   const tags = [
     ...Object.keys(paths),
@@ -42,18 +45,28 @@ export function generateTypeScriptFiles(filesPath: string,
   ].filter((value, index, array) => array.indexOf(value) === index);
 
   for (const tag of tags) {
-    const filename = filesPath + fileGenerator.getFileName(tag) + '.ts';
-    const fileContent = fileGenerator.generate(paths, schemas, tag, ctx);
+    const filename = filesPath + typeFileGenerator.getFileName(tag) + '.ts';
+    const fileContent = typeFileGenerator.generate(paths, schemas, tag, ctx);
 
     if (fs.existsSync(filename)) {
       fs.unlinkSync(filename);
     }
 
     fs.appendFileSync(filename, fileContent);
+
+    if (paths[tag]) {
+      const moduleFilename = filesPath + moduleGenerator.getFilename(tag) + '.ts';
+      const moduleFileContent = moduleGenerator.generate(tag, paths[tag], schemas, { ...ctx, tabs: 0 });
+      if (fs.existsSync(moduleFilename)) {
+        fs.unlinkSync(moduleFilename);
+      }
+
+      fs.appendFileSync(moduleFilename, moduleFileContent);
+    }
   }
 
-  const indexFile = filesPath + fileGenerator.getIndexFileName() + '.ts';
-  const indexFileContent = fileGenerator.generateIndex(schemas, tags);
+  const indexFile = filesPath + indexFileGenerator.getIndexFileName() + '.ts';
+  const indexFileContent = indexFileGenerator.generateIndex(schemas, tags);
 
   if (fs.existsSync(indexFile)) {
     fs.unlinkSync(indexFile);
@@ -131,6 +144,7 @@ export function generateTypescriptIntefacesWithMetadata(
 
   const newCtx = {
     ...ctx,
+    usedTypes: {},
     isResponse: false,
     tabs: 0,
   };
@@ -149,15 +163,16 @@ export function generateTypescriptIntefacesWithMetadata(
         interfaces.join('\n');
 }
 
-export function generateTypeScriptModule(paths: Paths, schemas: AllSchemas, ctx: {hasErrors: boolean}) {
+export function generateTypeScriptModule(paths: Paths, schemas: AllSchemas, ctx: { hasErrors: boolean }) {
 
   const methodToTsGenerator = new MethodGenerator();
   const interfaceGenerator = new InterfaceGenerator();
   const typeCheckGenerator = new TypeCheckGenerator();
-  const moduleGenerator = new ModuleGenerator(interfaceGenerator, methodToTsGenerator, typeCheckGenerator);
+  const indexFileGenerator = new IndexFileGenerator(interfaceGenerator);
+  const moduleGenerator = new ModuleGenerator(interfaceGenerator, methodToTsGenerator, typeCheckGenerator, indexFileGenerator);
 
 
   return Object.keys(paths).map((moduleName) => {
-    return moduleGenerator.generate(moduleName, paths[moduleName], schemas, ctx);
+    return moduleGenerator.generate(moduleName, paths[moduleName], schemas, { ...ctx, tabs: 0 });
   }).join('\n');
 }

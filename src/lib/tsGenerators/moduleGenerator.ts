@@ -3,10 +3,11 @@ import { MethodGenerator } from './methodGenerator';
 import { AllSchemas, isEmptyModel, Method, Schema } from '../types';
 import { defaultModuleMethodTemplate, defaultModuleTemplate, tabsStub } from './tsInterfacesStub';
 import { TypeCheckGenerator } from './typeCheckGenerator';
+import { IndexFileGenerator } from './indexFileGenerator';
 
 export interface ModuleGeneratorContext {
   hasErrors: boolean;
-  tabs?: number;
+  tabs: number;
 }
 
 export class ModuleGenerator {
@@ -17,6 +18,7 @@ export class ModuleGenerator {
   constructor(protected interfaceGenerator: InterfaceGenerator,
               protected methodGenerator: MethodGenerator,
               protected typeCheckGenerator: TypeCheckGenerator,
+              protected indexFileGenerator: IndexFileGenerator,
               methodTemplate?: string,
               moduleTemplate?: string) {
 
@@ -31,40 +33,20 @@ export class ModuleGenerator {
     let result = this.moduleTemplate.slice();
     const tabs = typeof ctx.tabs === 'number' ? ctx.tabs : 0;
 
+    const newCtx = {
+      ...ctx,
+      usedTypes: {},
+      isResponse: false,
+      tabs: tabs + 1,
+    };
+
     const allMethods = methods.map((method) => {
       let methodResult = this.methodTemplate.slice();
-
-      const newCtx = {
-        ...ctx,
-        isResponse: false,
-        tabs: tabs + 1,
-      };
 
       // {{method}}
       methodResult = methodResult.replace(
         /{{method}}/g,
-        this.methodGenerator.generateMethod(method, newCtx) + '\n',
-      );
-
-      // {{requestInterface}}
-      methodResult = methodResult.replace(
-        /{{requestInterface}}/g,
-        this.generateSchemasAndTypecheck(method.request, allSchemas, newCtx),
-      );
-
-      // {{requestInterface}}
-      methodResult = methodResult.replace(
-        /{{formInterface}}/g,
-        !isEmptyModel(method.form) && method.form
-          ? this.interfaceGenerator.generate(method.form, allSchemas, newCtx) + '\n\n' +
-            this.typeCheckGenerator.generate(method.form, newCtx) + '\n'
-          : '',
-      );
-
-      // {{responseInterface}}
-      methodResult = methodResult.replace(
-        /{{responseInterface}}/g,
-        this.generateSchemasAndTypecheck(method.response, allSchemas, { ...newCtx, isResponse: true }),
+        this.methodGenerator.generateMethod(method, { ...ctx, tag: moduleName }) + '\n',
       );
 
       // {{requestMetadata}}
@@ -105,12 +87,45 @@ export class ModuleGenerator {
             allMethods,
         );
 
+    // {{imports}}
+    result = result.replace(
+      /{{imports}}/g,
+      `import * as ${moduleName} from './${moduleName.charAt(0).toLocaleLowerCase() + moduleName.slice(1)}';`,
+    );
+
+    // {{indexImport}}
+    result = result.replace(
+      /{{indexImport}}/g,
+      `import * as Api from './${this.indexFileGenerator.getIndexFileName()}';`,
+    );
+
     if (tabs) {
       result = result.split('\n').map(item => tabsStub.repeat(tabs) + item).join('\n');
     }
 
     return result;
   }
+
+
+  generateMethodTypes(method: Method, allSchemas: AllSchemas, ctx: InterfaceGeneratorContext): string {
+
+    let result = '';
+
+    // {{requestInterface}}
+    result += this.generateSchemasAndTypecheck(method.request, allSchemas, ctx);
+
+    // {{requestInterface}}
+    result += !isEmptyModel(method.form) && method.form
+        ? this.interfaceGenerator.generate(method.form, allSchemas, ctx) + '\n\n' +
+          this.typeCheckGenerator.generate(method.form, ctx) + '\n'
+        : '';
+
+    // {{responseInterface}}
+    result += this.generateSchemasAndTypecheck(method.response, allSchemas, { ...ctx, isResponse: true });
+
+    return result;
+  }
+
 
   generateSchemasAndTypecheck(schema: Schema | Schema[] | null | 'link',
                               allSchemas: AllSchemas,
@@ -139,6 +154,10 @@ export class ModuleGenerator {
             : '';
       }).join('\n');
 
+  }
+
+  getFilename(tag: string): string {
+    return tag.charAt(0).toLocaleLowerCase() + tag.slice(1) + 'Methods';
   }
 
 

@@ -45,8 +45,6 @@ exports.defaultMetadataTemplate = 'export module {{name}}Metadata {\n' +
     '  export const modelType = \'{{name}}\';\n' +
     '  export const emptyModel = { {{emptyModelFields}} };\n' +
     '\n' +
-    //    '  Object.freeze(emptyModel);\n' +
-    '\n' +
     '  export module fields {\n' +
     '{{fieldsMetadata}}\n' +
     '  }\n' +
@@ -59,6 +57,17 @@ exports.defaultFieldMetadataTemplate = 'export const {{name}} = {\n' +
     '  apiField: \'{{apiField}}\',\n' +
     '};';
 exports.methodStub = '{{comment}}' +
+    'export const {{methodName}} = ({{methodParam}}): Promise<{{methodResultType}}> => {\n' +
+    '{{formPrepare}}\n' +
+    '  return {{apiPrefix}}fetchApi<{{methodResultType}}>(\n' +
+    '    {{url}},\n' +
+    '    \'{{httpMethod}}\',\n' +
+    '    {{body}},\n' +
+    '    {{formData}},\n' +
+    '    {{responseTypeCheckFunction}},\n' +
+    '  );\n' +
+    '};\n';
+exports.methodStubOld = '{{comment}}' +
     'export const {{methodName}} = ({{methodParam}}): Promise<{{methodResultType}}> => {\n' +
     '\n' +
     '  const headers = Api.getHeaders({{headersParams}});\n' +
@@ -87,27 +96,27 @@ exports.typeCheckCode = '\n' +
     '          if ({{responseTypeCheckFunction}}) {\n' +
     '            return decodedResponse;\n' +
     '          }\n' +
-    '          throw (`Response is not typeof for {{responseTypeCheckFunction}}: ${JSON.stringify(decodedResponse)}`);\n' +
+    '          throw (`Response is not {{responseTypeCheckFunction}}: ${JSON.stringify(decodedResponse)}`);\n' +
     '        });\n';
 exports.linkMethodStub = '{{comment}}' +
     'export const {{methodName}} = ({{methodParam}}): string => {\n' +
     '  return {{url}};\n' +
     '};\n';
 exports.defaultModuleMethodTemplate = '{{method}}' +
-    '{{requestInterface}}' +
-    '{{formInterface}}' +
-    '{{responseInterface}}' +
     '{{requestMetadata}}' +
     '{{formMetadata}}' +
     '{{responseMetadata}}';
-exports.defaultModuleTemplate = 'export module {{ModuleName}} {\n' +
+exports.defaultModuleTemplate = '{{indexImport}}\n' +
+    '{{imports}}\n\n' +
+    'export module {{ModuleName}} {\n' +
     '{{allMethods}}\n' +
     '}\n';
-exports.defaultFileTemplate = '/* tslint:disable:max-line-length */\n\n' +
-    'import * as Api from \'./api\';\n' +
-    '\n' +
+exports.defaultTypeFileTemplate = '/* tslint:disable:max-line-length */\n\n' +
+    '{{indexImport}}\n' +
+    '{{imports}}' +
+    '\n\n' +
     '{{interface}}' +
-    '{{module}}\n';
+    '\n';
 exports.defaultIndexTemplate = '/* tslint:disable */\n\n' +
     '/* Please define in ../baseTypes.ts the following types, const, and function: processError */\n' +
     '/* BaseModel, UUID, Email, Hostname, DateTime, DateOnly, Duration, Permit, API_URL, setParams, getHeaders, serialize */\n' +
@@ -127,8 +136,9 @@ exports.defaultIndexTemplate = '/* tslint:disable */\n\n' +
     '  processError,\n' +
     '  FolderType,\n' +
     '  InvitationStatus,\n' +
+    '  fetchApi,\n' +
     '} from \'../baseTypes\';\n' +
-    '{{files}}\n' +
+    '\n' +
     '{{commonTypes}}\n';
 exports.typeCheckTemplate = 'export function is{{name}}(arg: any): arg is {{name}} {\n' +
     '  return arg && (typeof arg === \'object\') {{requiredProps}};\n' +

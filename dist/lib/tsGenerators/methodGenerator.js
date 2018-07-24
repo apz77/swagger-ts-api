@@ -4,7 +4,6 @@ var types_1 = require("../types");
 var tsInterfacesStub_1 = require("./tsInterfacesStub");
 var MethodGenerator = /** @class */ (function () {
     function MethodGenerator(methodTemplate, linkMethodTemplate) {
-        this.typeCheckCode = tsInterfacesStub_1.typeCheckCode;
         this.apiPrefix = 'Api.';
         this.methodTemplate = methodTemplate || tsInterfacesStub_1.methodStub;
         this.linkMethodTemplate = linkMethodTemplate || tsInterfacesStub_1.linkMethodStub;
@@ -27,7 +26,7 @@ var MethodGenerator = /** @class */ (function () {
         var paramsArray = [];
         var headerParams = '';
         if (requestType) {
-            paramsArray.push(paramName + ": " + requestType);
+            paramsArray.push(paramName + ": " + ctx.tag + "." + requestType);
             headerParams = paramName;
         }
         if (method.response && method.response === 'link') {
@@ -50,15 +49,17 @@ var MethodGenerator = /** @class */ (function () {
             result = this.methodTemplate.slice();
             var resultType = method.response
                 ? Array.isArray(method.response)
-                    ? method.response.map(function (schema) { return schema.name; }).join(' | ')
-                    : (!types_1.isEmptyModel(method.response) && method.response && method.response.name) || 'void'
+                    ? method.response.map(function (schema) { return ctx.tag + '.' + schema.name; }).join(' | ')
+                    : (!types_1.isEmptyModel(method.response) && method.response && (ctx.tag + '.' + method.response.name)) || 'void'
                 : 'void';
             var methodFormType = '';
             if (method.form && !types_1.isEmptyModel(method.form)) {
                 methodFormType = method.form.name;
-                paramsArray.push(paramFormName + ": " + methodFormType);
+                paramsArray.push(paramFormName + ": " + ctx.tag + "." + methodFormType);
             }
             var methodParam = paramsArray.join(', ');
+            // {{methodName}}
+            result = result.replace(/{{apiPrefix}}/g, this.apiPrefix);
             // {{methodName}}
             result = result.replace(/{{methodName}}/g, method.name);
             // {{methodParam}}
@@ -76,22 +77,26 @@ var MethodGenerator = /** @class */ (function () {
                     ("  formData.append(key, (" + paramFormName + " as {[key: string]: any})[key]);\n") +
                     '}\n'
                 : '';
-            if (ctx.tabs && formPrepare) {
-                formPrepare = formPrepare.split('\n').map(function (item) { return tsInterfacesStub_1.tabsStub.repeat(ctx.tabs) + item; }).join('\n');
+            if (formPrepare) {
+                formPrepare = formPrepare.split('\n').map(function (item) { return tsInterfacesStub_1.tabsStub.repeat(ctx.tabs + 1) + item; }).join('\n');
             }
             result = result.replace(/{{formPrepare}}/g, formPrepare);
+            if (formPrepare) {
+                result = result.replace(/{{formData}}/g, 'formData');
+            }
+            else {
+                result = result.replace(/{{formData}}/g, 'null');
+            }
             // {{body}}
-            result = result.replace(/{{body}}/g, methodFormType
-                ? 'formData'
-                : requestType && (method.method === 'post' || method.method === 'put')
-                    ? this.apiPrefix + "serialize(" + paramName + ", " + requestMetadatas + ")"
-                    : 'null');
+            result = result.replace(/{{body}}/g, requestType && (method.method === 'post' || method.method === 'put')
+                ? this.apiPrefix + "serialize(" + paramName + ", " + requestMetadatas + ")"
+                : 'null');
             // {{contentType}}
             result = result.replace(/{{contentType}}/g, methodFormType ? 'application/json' : 'multipart/mixed');
             // {{httpMethod}}
             result = result.replace(/{{httpMethod}}/g, method.method);
             // {{typeCheckCode}}
-            result = result.replace(/{{typeCheckCode}}/g, this.generateTypeCheck(method.response));
+            result = result.replace(/{{responseTypeCheckFunction}}/g, this.generateTypeCheck(method.response, ctx.tag));
             // {{comment}}
             result = result.replace(/{{comment}}/g, "/**\n  " + method.summary + "\n  " + method.description + "\n */\n");
         }
@@ -100,15 +105,14 @@ var MethodGenerator = /** @class */ (function () {
         }
         return result;
     };
-    MethodGenerator.prototype.generateTypeCheck = function (schema) {
+    MethodGenerator.prototype.generateTypeCheck = function (schema, tag) {
         var schemas = Array.isArray(schema) ? schema : [schema];
         if (schemas.length === 0 || (schemas.length === 1 && types_1.isEmptyModel(schemas[0]))) {
-            return ';';
+            return 'null';
         }
-        return this.typeCheckCode.replace(/{{responseTypeCheckFunction}}/g, schemas
-            .map(function (schema) {
-            return "is" + schema.name + "(decodedResponse)";
-        }).join(' || '));
+        return '[' + schemas.map(function (schema) {
+            return tag + ".is" + schema.name;
+        }).join(', ') + ']';
     };
     MethodGenerator.prototype.getRequestMetadatas = function (schema) {
         var schemas = Array.isArray(schema) ? schema : [schema];

@@ -19,7 +19,7 @@ var TypeCheckGenerator = /** @class */ (function () {
         var _this = this;
         var result = this.template.slice();
         var properties = schema.properties;
-        var newCtx = __assign({}, ctx, { schema: schema, isResponse: false });
+        var newCtx = __assign({}, ctx, { usedTypes: {}, schema: schema, isResponse: false });
         result = result.replace(/{{name}}/g, schema.name);
         // {{requiredProps}}
         var props = Object.keys(properties)

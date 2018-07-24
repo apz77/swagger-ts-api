@@ -12,7 +12,7 @@ if (fs.existsSync(schemaOutFile)) {
   fs.unlinkSync(schemaOutFile);
 }
 
-request('http://127.0.0.1:3001/docs/swagger.json', (error: any, response: any, body: string) => {
+request('https://api.bpdevs.com/docs/swagger.json', (error: any, response: any, body: string) => {
   const responseJson = JSON.parse(body);
 
 

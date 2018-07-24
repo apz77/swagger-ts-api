@@ -52,8 +52,6 @@ export const defaultMetadataTemplate =
     '  export const modelType = \'{{name}}\';\n' +
     '  export const emptyModel = { {{emptyModelFields}} };\n' +
     '\n' +
-//    '  Object.freeze(emptyModel);\n' +
-    '\n' +
     '  export module fields {\n' +
     '{{fieldsMetadata}}\n' +
     '  }\n' +
@@ -68,7 +66,21 @@ export const defaultFieldMetadataTemplate =
     '  apiField: \'{{apiField}}\',\n' +
     '};';
 
+
 export const methodStub =
+    '{{comment}}' +
+    'export const {{methodName}} = ({{methodParam}}): Promise<{{methodResultType}}> => {\n' +
+    '{{formPrepare}}\n' +
+    '  return {{apiPrefix}}fetchApi<{{methodResultType}}>(\n' +
+    '    {{url}},\n' +
+    '    \'{{httpMethod}}\',\n' +
+    '    {{body}},\n' +
+    '    {{formData}},\n' +
+    '    {{responseTypeCheckFunction}},\n' +
+    '  );\n' +
+    '};\n';
+
+export const methodStubOld =
   '{{comment}}' +
   'export const {{methodName}} = ({{methodParam}}): Promise<{{methodResultType}}> => {\n' +
   '\n' +
@@ -100,7 +112,7 @@ export const typeCheckCode = '\n' +
   '          if ({{responseTypeCheckFunction}}) {\n' +
   '            return decodedResponse;\n' +
   '          }\n' +
-  '          throw (`Response is not typeof for {{responseTypeCheckFunction}}: ${JSON.stringify(decodedResponse)}`);\n' +
+  '          throw (`Response is not {{responseTypeCheckFunction}}: ${JSON.stringify(decodedResponse)}`);\n' +
   '        });\n';
 
 export const linkMethodStub =
@@ -111,24 +123,26 @@ export const linkMethodStub =
 
 export const defaultModuleMethodTemplate =
     '{{method}}' +
-    '{{requestInterface}}' +
-    '{{formInterface}}' +
-    '{{responseInterface}}' +
     '{{requestMetadata}}' +
     '{{formMetadata}}' +
     '{{responseMetadata}}';
 
 export const defaultModuleTemplate =
+    '{{indexImport}}\n' +
+    '{{imports}}\n\n' +
     'export module {{ModuleName}} {\n' +
     '{{allMethods}}\n' +
     '}\n';
 
-export const defaultFileTemplate =
+
+export const defaultTypeFileTemplate =
   '/* tslint:disable:max-line-length */\n\n' +
-  'import * as Api from \'./api\';\n' +
-  '\n' +
+  '{{indexImport}}\n' +
+  '{{imports}}' +
+  '\n\n' +
   '{{interface}}' +
-  '{{module}}\n'
+  '\n'
+
 
 export const defaultIndexTemplate =
   '/* tslint:disable */\n\n' +
@@ -150,8 +164,9 @@ export const defaultIndexTemplate =
   '  processError,\n' +
   '  FolderType,\n' +
   '  InvitationStatus,\n' +
+  '  fetchApi,\n' +
   '} from \'../baseTypes\';\n' +
-  '{{files}}\n' +
+  '\n' +
   '{{commonTypes}}\n'
 
 

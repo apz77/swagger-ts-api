@@ -52,7 +52,8 @@ export class TypeToTsPropertyConverter {
       case BasicType.OBJECT: return this.convertObject(type as ObjectType, apiPrefix, ctx);
       case BasicType.ENUM: return (type as EnumType).values.map(val => `'${val}'`).join(' | ');
       case BasicType.LINK: if (this.allSchemas[(type as LinkType).linkTo]) {
-        return apiPrefix + (type as LinkType).linkTo;
+        ctx.usedTypes[(type as LinkType).linkTo] = (type as LinkType).linkTo;
+        return (type as LinkType).linkTo;
       }
         ctx.hasErrors = true;
         const error = `${ctx.schema.name} ErrorType(model ${(type as LinkType).linkTo} ` +

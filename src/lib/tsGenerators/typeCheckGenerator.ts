@@ -18,6 +18,7 @@ export class TypeCheckGenerator {
 
     const newCtx = {
       ...ctx,
+      usedTypes: {},
       schema,
       isResponse: false,
     }

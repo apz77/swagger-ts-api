@@ -50,7 +50,8 @@ var TypeToTsPropertyConverter = /** @class */ (function () {
             case types_1.BasicType.ENUM: return type.values.map(function (val) { return "'" + val + "'"; }).join(' | ');
             case types_1.BasicType.LINK:
                 if (this.allSchemas[type.linkTo]) {
-                    return apiPrefix + type.linkTo;
+                    ctx.usedTypes[type.linkTo] = type.linkTo;
+                    return type.linkTo;
                 }
                 ctx.hasErrors = true;
                 var error = ctx.schema.name + " ErrorType(model " + type.linkTo + " " +
