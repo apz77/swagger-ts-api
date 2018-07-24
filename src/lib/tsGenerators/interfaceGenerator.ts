@@ -88,11 +88,14 @@ export class InterfaceGenerator {
     result = result.replace(/{{name}}/g, schema.name);
 
     // {{emptyModelFields}}
-    const requiredFields = propertyNames
+    /* const requiredFields = propertyNames
             .filter(propertyName => properties[propertyName].isRequired)
             .map(propertyName => `${getPropertyName(properties[propertyName], newCtx)}: Api.v0`);
 
-    result = result.replace(/{{emptyModelFields}}/g, requiredFields.join(','));
+      result = result.replace(/{{emptyModelFields}}/g, requiredFields.join(','));
+    */
+
+    result = result.replace(/{{emptyModelFields}}/g, '');
 
     // {{fieldsMetadata}}
     const fieldsMetadata = propertyNames

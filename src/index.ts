@@ -47,34 +47,34 @@ export function generateTypeScriptFiles(filesPath: string,
   for (const tag of tags) {
     const filename = filesPath + typeFileGenerator.getFileName(tag) + '.ts';
     const fileContent = typeFileGenerator.generate(paths, schemas, tag, ctx);
+    replaceFile(filename, fileContent);
 
-    if (fs.existsSync(filename)) {
-      fs.unlinkSync(filename);
-    }
+    const moduleFilename = filesPath + moduleGenerator.getFilename(tag) + '.ts';
+    const moduleFileContent = moduleGenerator.generate(tag, paths[tag] || [], schemas, { ...ctx, tabs: 0 });
+    replaceFile(moduleFilename, moduleFileContent);
 
-    fs.appendFileSync(filename, fileContent);
-
-    if (paths[tag]) {
-      const moduleFilename = filesPath + moduleGenerator.getFilename(tag) + '.ts';
-      const moduleFileContent = moduleGenerator.generate(tag, paths[tag], schemas, { ...ctx, tabs: 0 });
-      if (fs.existsSync(moduleFilename)) {
-        fs.unlinkSync(moduleFilename);
-      }
-
-      fs.appendFileSync(moduleFilename, moduleFileContent);
+    if (schemas[tag]) {
+      const metadataFileName = filesPath + typeFileGenerator.getFileName(tag) + 'Metadata.ts';
+      const metadataFileContent = interfaceGenerator.generateMetadata(
+        schemas[tag],
+        schemas,
+        { ...ctx, tabs: 0, usedTypes: {}, isResponse: false },
+      );
+      replaceFile(metadataFileName, metadataFileContent);
     }
   }
 
   const indexFile = filesPath + indexFileGenerator.getIndexFileName() + '.ts';
   const indexFileContent = indexFileGenerator.generateIndex(schemas, tags);
-
-  if (fs.existsSync(indexFile)) {
-    fs.unlinkSync(indexFile);
-  }
-
-  fs.appendFileSync(indexFile, indexFileContent);
+  replaceFile(indexFile, indexFileContent);
 }
 
+function replaceFile(filename: string, content: string) {
+  if (fs.existsSync(filename)) {
+    fs.unlinkSync(filename);
+  }
+  fs.appendFileSync(filename, content);
+}
 
 /**
  * Parses swagger doc json file into inner format

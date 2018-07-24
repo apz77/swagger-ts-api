@@ -46,27 +46,27 @@ function generateTypeScriptFiles(filesPath, paths, schemas, ctx) {
         var tag = tags_1[_i];
         var filename = filesPath + typeFileGenerator.getFileName(tag) + '.ts';
         var fileContent = typeFileGenerator.generate(paths, schemas, tag, ctx);
-        if (fs.existsSync(filename)) {
-            fs.unlinkSync(filename);
-        }
-        fs.appendFileSync(filename, fileContent);
-        if (paths[tag]) {
-            var moduleFilename = filesPath + moduleGenerator.getFilename(tag) + '.ts';
-            var moduleFileContent = moduleGenerator.generate(tag, paths[tag], schemas, __assign({}, ctx, { tabs: 0 }));
-            if (fs.existsSync(moduleFilename)) {
-                fs.unlinkSync(moduleFilename);
-            }
-            fs.appendFileSync(moduleFilename, moduleFileContent);
+        replaceFile(filename, fileContent);
+        var moduleFilename = filesPath + moduleGenerator.getFilename(tag) + '.ts';
+        var moduleFileContent = moduleGenerator.generate(tag, paths[tag] || [], schemas, __assign({}, ctx, { tabs: 0 }));
+        replaceFile(moduleFilename, moduleFileContent);
+        if (schemas[tag]) {
+            var metadataFileName = filesPath + typeFileGenerator.getFileName(tag) + 'Metadata.ts';
+            var metadataFileContent = interfaceGenerator.generateMetadata(schemas[tag], schemas, __assign({}, ctx, { tabs: 0, usedTypes: {}, isResponse: false }));
+            replaceFile(metadataFileName, metadataFileContent);
         }
     }
     var indexFile = filesPath + indexFileGenerator.getIndexFileName() + '.ts';
     var indexFileContent = indexFileGenerator.generateIndex(schemas, tags);
-    if (fs.existsSync(indexFile)) {
-        fs.unlinkSync(indexFile);
-    }
-    fs.appendFileSync(indexFile, indexFileContent);
+    replaceFile(indexFile, indexFileContent);
 }
 exports.generateTypeScriptFiles = generateTypeScriptFiles;
+function replaceFile(filename, content) {
+    if (fs.existsSync(filename)) {
+        fs.unlinkSync(filename);
+    }
+    fs.appendFileSync(filename, content);
+}
 /**
  * Parses swagger doc json file into inner format
  * @param swaggerResponse - swagger doc in json format

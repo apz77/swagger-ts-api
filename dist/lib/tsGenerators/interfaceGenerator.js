@@ -57,10 +57,13 @@ var InterfaceGenerator = /** @class */ (function () {
         // {{name}}
         result = result.replace(/{{name}}/g, schema.name);
         // {{emptyModelFields}}
-        var requiredFields = propertyNames
-            .filter(function (propertyName) { return properties[propertyName].isRequired; })
-            .map(function (propertyName) { return getPropertyName(properties[propertyName], newCtx) + ": Api.v0"; });
-        result = result.replace(/{{emptyModelFields}}/g, requiredFields.join(','));
+        /* const requiredFields = propertyNames
+                .filter(propertyName => properties[propertyName].isRequired)
+                .map(propertyName => `${getPropertyName(properties[propertyName], newCtx)}: Api.v0`);
+    
+          result = result.replace(/{{emptyModelFields}}/g, requiredFields.join(','));
+        */
+        result = result.replace(/{{emptyModelFields}}/g, '');
         // {{fieldsMetadata}}
         var fieldsMetadata = propertyNames
             .map(function (propertyName) {

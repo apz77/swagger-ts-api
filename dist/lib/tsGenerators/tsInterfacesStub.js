@@ -114,8 +114,10 @@ exports.defaultModuleTemplate = '{{indexImport}}\n' +
 exports.defaultTypeFileTemplate = '/* tslint:disable:max-line-length */\n\n' +
     '{{indexImport}}\n' +
     '{{imports}}' +
-    '\n\n' +
+    '\n' +
     '{{interface}}' +
+    '\n' +
+    '{{metadata}}' +
     '\n';
 exports.defaultIndexTemplate = '/* tslint:disable */\n\n' +
     '/* Please define in ../baseTypes.ts the following types, const, and function: processError */\n' +
