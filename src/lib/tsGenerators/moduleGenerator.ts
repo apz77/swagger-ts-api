@@ -46,7 +46,7 @@ export class ModuleGenerator {
       // {{method}}
       methodResult = methodResult.replace(
         /{{method}}/g,
-        this.methodGenerator.generateMethod(method, { ...ctx, tag: moduleName }) + '\n',
+        this.methodGenerator.generateMethod(method, { ...ctx, tag: `${moduleName}Types` }) + '\n',
       );
 
       // {{requestMetadata}}
@@ -90,7 +90,7 @@ export class ModuleGenerator {
     // {{imports}}
     result = result.replace(
       /{{imports}}/g,
-      `import * as ${moduleName} from './${moduleName.charAt(0).toLocaleLowerCase() + moduleName.slice(1)}';`,
+      `import * as ${moduleName}Types from './${moduleName.charAt(0).toLocaleLowerCase() + moduleName.slice(1)}';`,
     );
 
     // {{indexImport}}

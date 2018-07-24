@@ -27,7 +27,7 @@ var ModuleGenerator = /** @class */ (function () {
         var allMethods = methods.map(function (method) {
             var methodResult = _this.methodTemplate.slice();
             // {{method}}
-            methodResult = methodResult.replace(/{{method}}/g, _this.methodGenerator.generateMethod(method, __assign({}, ctx, { tag: moduleName })) + '\n');
+            methodResult = methodResult.replace(/{{method}}/g, _this.methodGenerator.generateMethod(method, __assign({}, ctx, { tag: moduleName + "Types" })) + '\n');
             // {{requestMetadata}}
             methodResult = methodResult.replace(/{{requestMetadata}}/g, _this.generateSchemasMetadata(method.request, allSchemas, newCtx));
             // {{formMetadata}}
@@ -43,7 +43,7 @@ var ModuleGenerator = /** @class */ (function () {
         // {{allMethods}}
         result = result.replace(/{{allMethods}}/g, allMethods);
         // {{imports}}
-        result = result.replace(/{{imports}}/g, "import * as " + moduleName + " from './" + (moduleName.charAt(0).toLocaleLowerCase() + moduleName.slice(1)) + "';");
+        result = result.replace(/{{imports}}/g, "import * as " + moduleName + "Types from './" + (moduleName.charAt(0).toLocaleLowerCase() + moduleName.slice(1)) + "';");
         // {{indexImport}}
         result = result.replace(/{{indexImport}}/g, "import * as Api from './" + this.indexFileGenerator.getIndexFileName() + "';");
         if (tabs) {
