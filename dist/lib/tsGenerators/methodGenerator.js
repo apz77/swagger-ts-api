@@ -14,8 +14,8 @@ var MethodGenerator = /** @class */ (function () {
         var paramFormName = 'form';
         var requestType = method.request
             ? Array.isArray(method.request)
-                ? method.request.map(function (schema) { return schema.name; }).join(' | ')
-                : !types_1.isEmptyModel(method.request) ? method.request.name : null
+                ? method.request.map(function (schema) { return ctx.tag + "." + schema.name; }).join(' | ')
+                : !types_1.isEmptyModel(method.request) ? ctx.tag + "." + method.request.name : null
             : null;
         var requestMetadatas = method.request && requestType
             ? this.getRequestMetadatas(method.request)
@@ -26,7 +26,7 @@ var MethodGenerator = /** @class */ (function () {
         var paramsArray = [];
         var headerParams = '';
         if (requestType) {
-            paramsArray.push(paramName + ": " + ctx.tag + "." + requestType);
+            paramsArray.push(paramName + ": " + requestType);
             headerParams = paramName;
         }
         if (method.response && method.response === 'link') {

@@ -23,8 +23,8 @@ export class MethodGenerator {
     const paramFormName = 'form';
     const requestType = method.request
       ? Array.isArray(method.request)
-        ? method.request.map(schema => schema.name).join(' | ')
-        : !isEmptyModel(method.request) ? method.request.name : null
+        ? method.request.map(schema => `${ctx.tag}.${schema.name}`).join(' | ')
+        : !isEmptyModel(method.request) ? `${ctx.tag}.${method.request.name}` : null
       : null;
 
     const requestMetadatas = method.request && requestType
@@ -39,7 +39,7 @@ export class MethodGenerator {
     let headerParams = '';
 
     if (requestType) {
-      paramsArray.push(`${paramName}: ${ctx.tag}.${requestType}`);
+      paramsArray.push(`${paramName}: ${requestType}`);
       headerParams = paramName;
     }
 
