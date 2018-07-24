@@ -39,7 +39,7 @@ var ModuleGenerator = /** @class */ (function () {
             ctx.hasErrors = ctx.hasErrors || newCtx.hasErrors;
             return methodResult;
         }).join('\n');
-        result = result.replace(/{{ModuleName}}/g, moduleName);
+        result = result.replace(/{{ModuleName}}/g, moduleName + "Module");
         // {{allMethods}}
         result = result.replace(/{{allMethods}}/g, allMethods);
         // {{imports}}
@@ -88,7 +88,7 @@ var ModuleGenerator = /** @class */ (function () {
         }).join('\n');
     };
     ModuleGenerator.prototype.getFilename = function (tag) {
-        return tag.charAt(0).toLocaleLowerCase() + tag.slice(1) + 'Methods';
+        return tag.charAt(0).toLocaleLowerCase() + tag.slice(1) + 'Module';
     };
     return ModuleGenerator;
 }());

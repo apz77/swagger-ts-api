@@ -78,7 +78,7 @@ export class ModuleGenerator {
 
     result = result.replace(
             /{{ModuleName}}/g,
-            moduleName,
+            `${moduleName}Module`,
         );
 
     // {{allMethods}}
@@ -157,7 +157,7 @@ export class ModuleGenerator {
   }
 
   getFilename(tag: string): string {
-    return tag.charAt(0).toLocaleLowerCase() + tag.slice(1) + 'Methods';
+    return tag.charAt(0).toLocaleLowerCase() + tag.slice(1) + 'Module';
   }
 
 
