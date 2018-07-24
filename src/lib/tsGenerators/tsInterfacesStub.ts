@@ -136,13 +136,11 @@ export const defaultModuleTemplate =
 
 
 export const defaultTypeFileTemplate =
-  '/* tslint:disable:max-line-length */\n\n' +
+  '/* tslint:disable:max-line-length */\n' +
   '{{indexImport}}\n' +
-  '{{imports}}' +
+  '{{imports}}\n' +
   '\n' +
   '{{interface}}' +
-  '\n' +
-  '{{metadata}}' +
   '\n'
 
 
