@@ -7,7 +7,7 @@ var EnumTypeProcessor = /** @class */ (function () {
     }
     EnumTypeProcessor.prototype.consume = function (swaggerSchemaProperty, typeName, ctx) {
         if (swaggerSchemaProperty.enum) {
-            if (typeName === 'string') {
+            if (typeName === 'string' || typeName === 'number') {
                 return {
                     basicType: types_1.BasicType.ENUM,
                     values: swaggerSchemaProperty.enum,

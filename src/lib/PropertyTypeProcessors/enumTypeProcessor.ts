@@ -9,7 +9,7 @@ export class EnumTypeProcessor implements TypeProcessor {
           typeName: string,
           ctx: TypeProcessorContext): PropertyType | null {
     if (swaggerSchemaProperty.enum) {
-      if (typeName === 'string') {
+      if (typeName === 'string' || typeName === 'number') {
         return {
           basicType: BasicType.ENUM,
           values: swaggerSchemaProperty.enum,
