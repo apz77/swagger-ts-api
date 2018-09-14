@@ -77,10 +77,15 @@ export class TypeToTsPropertyConverter {
       case BasicType.ARRAY: return `(${this.convert((type as ArrayType).arrayType, apiPrefix, ctx)})[]`;
       case BasicType.OBJECT: return this.convertObject(type as ObjectType, apiPrefix, ctx);
       case BasicType.ENUM: return (type as EnumType).values.map(val => `'${val}'`).join(' | ');
-      case BasicType.LINK: if (this.allSchemas[(type as LinkType).linkTo]) {
-        ctx.usedTypes[(type as LinkType).linkTo] = (type as LinkType).linkTo;
-        return (type as LinkType).linkTo;
-      }
+      case BasicType.LINK:
+        if (ctx.rawTypes) {
+          return 'string';
+        }
+
+        if (this.allSchemas[(type as LinkType).linkTo]) {
+          ctx.usedTypes[(type as LinkType).linkTo] = (type as LinkType).linkTo;
+          return (type as LinkType).linkTo;
+        }
         ctx.hasErrors = true;
         const error = `${ctx.schema.name} ErrorType(model ${(type as LinkType).linkTo} ` +
           `has not been found in swagger doc)`;
