@@ -107,7 +107,7 @@ var InterfaceGenerator = /** @class */ (function () {
 }());
 exports.InterfaceGenerator = InterfaceGenerator;
 function getPropertyName(property, ctx) {
-    if (property.types.find(function (type) { return type.basicType === types_1.BasicType.LINK; })) {
+    if (!ctx.rawTypes && property.types.find(function (type) { return type.basicType === types_1.BasicType.LINK; })) {
         if (property.name.substr(-2) === 'Id') {
             return property.name.substr(0, property.name.length - 2);
         }

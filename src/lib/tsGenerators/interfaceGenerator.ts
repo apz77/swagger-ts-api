@@ -8,6 +8,8 @@ import {
 } from './tsInterfacesStub';
 
 export interface InterfaceGeneratorContext {
+  // Use raw types, e.g. "email: string" instead of "email: Api.Email", "accountId: string" instead of "account: Api.Account"
+  rawTypes: boolean;
   usedTypes: {[tag: string]: any};
   hasErrors: boolean;
   isResponse: boolean;
@@ -151,7 +153,7 @@ export class InterfaceGenerator {
 }
 
 export function getPropertyName(property: ObjectProperty, ctx: TypeToTsPropertyConverterContext) {
-  if (property.types.find(type => type.basicType === BasicType.LINK)) {
+  if (!ctx.rawTypes && property.types.find(type => type.basicType === BasicType.LINK)) {
 
     if (property.name.substr(-2) === 'Id') {
 

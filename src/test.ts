@@ -17,6 +17,7 @@ request('https://api.bpdevs.com/docs/swagger.json', (error: any, response: any, 
 
 
   const ctx = {
+    rawTypes: true,
     hasErrors: false,
     tabs: 0,
   };

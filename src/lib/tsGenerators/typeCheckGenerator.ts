@@ -3,6 +3,7 @@ import { ObjectProperty, ObjectType, Schema } from '../types';
 import { getPropertyName } from './interfaceGenerator';
 
 export interface TypeCheckGeneratorContext {
+  rawTypes: boolean;
   hasErrors: boolean;
   tabs: number;
 }

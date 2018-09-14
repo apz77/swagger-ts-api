@@ -2,6 +2,9 @@ import { Method, isEmptyModel, Schema } from '../types';
 import { linkMethodStub, methodStub, tabsStub } from './tsInterfacesStub';
 
 export interface MethodGeneratorContext {
+  // Use raw types, e.g. "email: string" instead of "email: Api.Email", "accountId: string" instead of "account: Api.Account"
+  // this excludes usage of serializer
+  rawTypes: boolean;
   tag: string;
   hasErrors: boolean;
   tabs: number;

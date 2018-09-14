@@ -11,6 +11,7 @@ if (fs.existsSync(schemaOutFile)) {
 request('https://api.bpdevs.com/docs/swagger.json', function (error, response, body) {
     var responseJson = JSON.parse(body);
     var ctx = {
+        rawTypes: true,
         hasErrors: false,
         tabs: 0,
     };

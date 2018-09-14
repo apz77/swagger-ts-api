@@ -14,15 +14,39 @@ var tsInterfacesStub_1 = require("./tsInterfacesStub");
 var TypeToTsPropertyConverter = /** @class */ (function () {
     function TypeToTsPropertyConverter(allSchemas) {
         this.allSchemas = allSchemas;
-        this.basicTypesMap = (_a = {},
-            _a[types_1.BasicType.NULL] = 'null',
-            _a[types_1.BasicType.STRING] = 'string',
-            _a[types_1.BasicType.NUMBER] = 'number',
-            _a[types_1.BasicType.BOOLEAN] = 'boolean',
-            _a[types_1.BasicType.JSON] = 'string',
-            _a[types_1.BasicType.BLOB] = 'Blob',
-            _a);
-        this.basicPrefixedTypesMap = (_b = {},
+    }
+    TypeToTsPropertyConverter.prototype.getBasicTypesMap = function (ctx) {
+        return ctx.rawTypes
+            ? (_a = {},
+                _a[types_1.BasicType.NULL] = 'null',
+                _a[types_1.BasicType.STRING] = 'string',
+                _a[types_1.BasicType.NUMBER] = 'number',
+                _a[types_1.BasicType.BOOLEAN] = 'boolean',
+                _a[types_1.BasicType.JSON] = 'string',
+                _a[types_1.BasicType.BLOB] = 'Blob',
+                _a[types_1.BasicType.DATE] = 'string',
+                _a[types_1.BasicType.HOSTNAME] = 'string',
+                _a[types_1.BasicType.DURATION] = 'string',
+                _a[types_1.BasicType.EMAIL] = 'string',
+                _a[types_1.BasicType.UUID] = 'string',
+                _a[types_1.BasicType.DATETIME] = 'string',
+                _a) : (_b = {},
+            _b[types_1.BasicType.NULL] = 'null',
+            _b[types_1.BasicType.STRING] = 'string',
+            _b[types_1.BasicType.NUMBER] = 'number',
+            _b[types_1.BasicType.BOOLEAN] = 'boolean',
+            _b[types_1.BasicType.JSON] = 'string',
+            _b[types_1.BasicType.BLOB] = 'Blob',
+            _b);
+        var _a, _b;
+    };
+    TypeToTsPropertyConverter.prototype.getBasicPrefixedTypesMap = function (ctx) {
+        return ctx.rawTypes
+            ? (_a = {},
+                _a[types_1.BasicType.PERMIT] = 'Permit',
+                _a[types_1.BasicType.FOLDERTYPE] = 'FolderType',
+                _a[types_1.BasicType.INVITATIONSTATUS] = 'InvitationStatus',
+                _a) : (_b = {},
             _b[types_1.BasicType.DATE] = 'DateOnly',
             _b[types_1.BasicType.DATETIME] = 'DateTime',
             _b[types_1.BasicType.HOSTNAME] = 'Hostname',
@@ -34,13 +58,13 @@ var TypeToTsPropertyConverter = /** @class */ (function () {
             _b[types_1.BasicType.UUID] = 'UUID',
             _b);
         var _a, _b;
-    }
+    };
     TypeToTsPropertyConverter.prototype.convert = function (type, apiPrefix, ctx) {
-        if (this.basicTypesMap[type.basicType]) {
-            return this.basicTypesMap[type.basicType];
+        if (this.getBasicTypesMap(ctx)[type.basicType]) {
+            return this.getBasicTypesMap(ctx)[type.basicType];
         }
-        if (this.basicPrefixedTypesMap[type.basicType]) {
-            return apiPrefix + this.basicPrefixedTypesMap[type.basicType];
+        if (this.getBasicPrefixedTypesMap(ctx)[type.basicType]) {
+            return apiPrefix + this.getBasicPrefixedTypesMap(ctx)[type.basicType];
         }
         switch (type.basicType) {
             case types_1.BasicType.MODELTYPE: return apiPrefix + 'ModelTypes';

@@ -20,7 +20,7 @@ export class TypeFileGenerator {
     return tag.charAt(0).toLocaleLowerCase() + tag.slice(1);
   }
 
-  generate(paths: Paths, schemas: AllSchemas, tag: string, ctx: {hasErrors: boolean}): string {
+  generate(paths: Paths, schemas: AllSchemas, tag: string, ctx: {hasErrors: boolean, rawTypes: boolean}): string {
     let result = this.typesTemplate.slice();
     let interfaces = '';
 

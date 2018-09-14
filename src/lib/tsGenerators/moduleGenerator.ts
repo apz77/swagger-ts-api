@@ -6,6 +6,7 @@ import { TypeCheckGenerator } from './typeCheckGenerator';
 import { IndexFileGenerator } from './indexFileGenerator';
 
 export interface ModuleGeneratorContext {
+  rawTypes: boolean;
   hasErrors: boolean;
   tabs: number;
 }

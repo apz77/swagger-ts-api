@@ -29,7 +29,7 @@ export function clearDirectory(dir: string, callback: (error: Error) => void) {
 export function generateTypeScriptFiles(filesPath: string,
                                         paths: Paths,
                                         schemas: AllSchemas,
-                                        ctx: {hasErrors: boolean}): void {
+                                        ctx: {hasErrors: boolean, rawTypes: boolean}): void {
 
   const methodToTsGenerator = new MethodGenerator();
   const interfaceGenerator = new InterfaceGenerator();
@@ -136,7 +136,7 @@ export function parseSwagger(swaggerResponse: any, ctx: SchemaFactoryContext):
 
 export function generateTypescriptIntefacesWithMetadata(
     schemas: AllSchemas,
-    ctx: {hasErrors: boolean},
+    ctx: {hasErrors: boolean, rawTypes: boolean},
     stub?: string,
     basicTypesStub?: string): string {
 
@@ -151,7 +151,7 @@ export function generateTypescriptIntefacesWithMetadata(
 
   const interfaces = Object.keys(schemas).map((schemaName) => {
     return interfaceGenerator.generate(schemas[schemaName], schemas, newCtx) +
-               interfaceGenerator.generateMetadata(schemas[schemaName], schemas, newCtx);
+           interfaceGenerator.generateMetadata(schemas[schemaName], schemas, newCtx);
   });
 
   const modelTypes = interfaceGenerator.generateModelTypes(schemas);
@@ -163,7 +163,7 @@ export function generateTypescriptIntefacesWithMetadata(
         interfaces.join('\n');
 }
 
-export function generateTypeScriptModule(paths: Paths, schemas: AllSchemas, ctx: { hasErrors: boolean }) {
+export function generateTypeScriptModule(paths: Paths, schemas: AllSchemas, ctx: { hasErrors: boolean, rawTypes: boolean }) {
 
   const methodToTsGenerator = new MethodGenerator();
   const interfaceGenerator = new InterfaceGenerator();

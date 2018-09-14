@@ -6,43 +6,69 @@ import { getPropertyName, InterfaceGeneratorContext } from './interfaceGenerator
 import { tabsStub } from './tsInterfacesStub';
 
 export interface TypeToTsPropertyConverterContext extends InterfaceGeneratorContext {
+  // Use raw types, e.g. "email: string" instead of "email: Api.Email", "accountId: string" instead of "account: Api.Account"
+  rawTypes: boolean;
   schema: Schema;
   tabs: number;
 }
 
 export class TypeToTsPropertyConverter {
 
-  protected basicTypesMap: {[key: string]: string} = {
-    [BasicType.NULL]: 'null',
-    [BasicType.STRING]: 'string',
-    [BasicType.NUMBER]: 'number',
-    [BasicType.BOOLEAN]: 'boolean',
-    [BasicType.JSON]: 'string',
-    [BasicType.BLOB]: 'Blob',
-  };
+  protected getBasicTypesMap(ctx: TypeToTsPropertyConverterContext): {[key: string]: string} {
+    return ctx.rawTypes
+      ? {
+        [BasicType.NULL]: 'null',
+        [BasicType.STRING]: 'string',
+        [BasicType.NUMBER]: 'number',
+        [BasicType.BOOLEAN]: 'boolean',
+        [BasicType.JSON]: 'string',
+        [BasicType.BLOB]: 'Blob',
+        [BasicType.DATE]: 'string',
+        [BasicType.HOSTNAME]: 'string',
+        [BasicType.DURATION]: 'string',
+        [BasicType.EMAIL]: 'string',
+        [BasicType.UUID]: 'string',
+        [BasicType.DATETIME]: 'string',
+      }
+      : {
+        [BasicType.NULL]: 'null',
+        [BasicType.STRING]: 'string',
+        [BasicType.NUMBER]: 'number',
+        [BasicType.BOOLEAN]: 'boolean',
+        [BasicType.JSON]: 'string',
+        [BasicType.BLOB]: 'Blob',
+      };
+  }
 
-  protected basicPrefixedTypesMap: {[key: string]: string} = {
-    [BasicType.DATE]: 'DateOnly',
-    [BasicType.DATETIME]: 'DateTime',
-    [BasicType.HOSTNAME]: 'Hostname',
-    [BasicType.DURATION]: 'Duration',
-    [BasicType.EMAIL]: 'Email',
-    [BasicType.PERMIT]: 'Permit',
-    [BasicType.FOLDERTYPE]: 'FolderType',
-    [BasicType.INVITATIONSTATUS]: 'InvitationStatus',
-    [BasicType.UUID]: 'UUID',
-  };
-
+  protected getBasicPrefixedTypesMap(ctx: TypeToTsPropertyConverterContext): {[key: string]: string} {
+    return ctx.rawTypes
+      ? {
+        [BasicType.PERMIT]: 'Permit',
+        [BasicType.FOLDERTYPE]: 'FolderType',
+        [BasicType.INVITATIONSTATUS]: 'InvitationStatus',
+      }
+      : {
+        [BasicType.DATE]: 'DateOnly',
+        [BasicType.DATETIME]: 'DateTime',
+        [BasicType.HOSTNAME]: 'Hostname',
+        [BasicType.DURATION]: 'Duration',
+        [BasicType.EMAIL]: 'Email',
+        [BasicType.PERMIT]: 'Permit',
+        [BasicType.FOLDERTYPE]: 'FolderType',
+        [BasicType.INVITATIONSTATUS]: 'InvitationStatus',
+        [BasicType.UUID]: 'UUID',
+      };
+  }
 
   constructor(protected allSchemas: AllSchemas) {}
 
   public convert(type: PropertyType, apiPrefix: string, ctx: TypeToTsPropertyConverterContext): any {
-    if (this.basicTypesMap[type.basicType]) {
-      return this.basicTypesMap[type.basicType];
+    if (this.getBasicTypesMap(ctx)[type.basicType]) {
+      return this.getBasicTypesMap(ctx)[type.basicType];
     }
 
-    if (this.basicPrefixedTypesMap[type.basicType]) {
-      return apiPrefix + this.basicPrefixedTypesMap[type.basicType];
+    if (this.getBasicPrefixedTypesMap(ctx)[type.basicType]) {
+      return apiPrefix + this.getBasicPrefixedTypesMap(ctx)[type.basicType];
     }
 
     switch (type.basicType) {
