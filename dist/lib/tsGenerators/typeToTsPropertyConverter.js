@@ -73,7 +73,7 @@ var TypeToTsPropertyConverter = /** @class */ (function () {
             case types_1.BasicType.OBJECT: return this.convertObject(type, apiPrefix, ctx);
             case types_1.BasicType.ENUM: return type.values.map(function (val) { return "'" + val + "'"; }).join(' | ');
             case types_1.BasicType.LINK:
-                if (ctx.rawTypes) {
+                if (ctx.rawTypes && !ctx.isResponse) {
                     return 'string';
                 }
                 if (this.allSchemas[type.linkTo]) {

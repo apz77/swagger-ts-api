@@ -8,6 +8,7 @@ import { tabsStub } from './tsInterfacesStub';
 export interface TypeToTsPropertyConverterContext extends InterfaceGeneratorContext {
   // Use raw types, e.g. "email: string" instead of "email: Api.Email", "accountId: string" instead of "account: Api.Account"
   rawTypes: boolean;
+  isResponse: boolean;
   schema: Schema;
   tabs: number;
 }
@@ -78,7 +79,7 @@ export class TypeToTsPropertyConverter {
       case BasicType.OBJECT: return this.convertObject(type as ObjectType, apiPrefix, ctx);
       case BasicType.ENUM: return (type as EnumType).values.map(val => `'${val}'`).join(' | ');
       case BasicType.LINK:
-        if (ctx.rawTypes) {
+        if (ctx.rawTypes && !ctx.isResponse) {
           return 'string';
         }
 
