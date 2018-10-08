@@ -75,6 +75,7 @@ var InterfaceGenerator = /** @class */ (function () {
             template = template.replace(/{{subType}}/g, _this.getPropertyMetadataSubType(property));
             template = template.replace(/{{isRequired}}/g, "" + property.isRequired);
             template = template.replace(/{{apiField}}/g, propertyName);
+            template = template.replace(/{{inPath}}/g, property.inPath ? '  inPath: true,\n' : '');
             template = template.split('\n').map(function (item) { return tsInterfacesStub_1.tabsStub.repeat(tabs) + item; }).join('\n');
             return template;
         })

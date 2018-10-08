@@ -64,6 +64,7 @@ export const defaultFieldMetadataTemplate =
     '  subType: \'{{subType}}\',\n' +
     '  isRequired: {{isRequired}},\n' +
     '  apiField: \'{{apiField}}\',\n' +
+    '{{inPath}}' +
     '};';
 
 

@@ -92,8 +92,12 @@ var MethodGenerator = /** @class */ (function () {
             else {
                 result = result.replace(/{{formData}}/g, 'null');
             }
+            var hasBody = Array.isArray(method.request)
+                || (method.request !== null
+                    && Object.keys(method.request.properties)
+                        .find(function (requestParamName) { return !method.url.includes("{" + requestParamName + "}"); }));
             // {{body}}
-            result = result.replace(/{{body}}/g, requestType && (method.method === 'post' || method.method === 'put')
+            result = result.replace(/{{body}}/g, requestType && method.method !== 'get' && !!hasBody
                 ? this.apiPrefix + "serialize(" + paramName + ", " + requestMetadatas + ")"
                 : 'null');
             // {{contentType}}

@@ -55,6 +55,7 @@ exports.defaultFieldMetadataTemplate = 'export const {{name}} = {\n' +
     '  subType: \'{{subType}}\',\n' +
     '  isRequired: {{isRequired}},\n' +
     '  apiField: \'{{apiField}}\',\n' +
+    '{{inPath}}' +
     '};';
 exports.methodStub = '{{comment}}' +
     'export const {{methodName}} = ({{methodParam}}): Promise<{{methodResultType}}> => {\n' +

@@ -131,10 +131,15 @@ export class MethodGenerator {
         result = result.replace(/{{formData}}/g, 'null');
       }
 
+      const hasBody = Array.isArray(method.request)
+        || (method.request !== null
+        && Object.keys(method.request.properties)
+        .find((requestParamName: string) => !method.url.includes(`{${requestParamName}}`)));
+
       // {{body}}
       result = result.replace(
         /{{body}}/g,
-        requestType && (method.method === 'post' || method.method === 'put')
+        requestType && method.method !== 'get' && !!hasBody
             ? `${this.apiPrefix}serialize(${paramName}, ${requestMetadatas})`
             : 'null',
       );

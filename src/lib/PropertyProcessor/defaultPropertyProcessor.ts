@@ -22,9 +22,14 @@ export class DefaultPropertyProcessor implements PropertyProcessor {
       ctx,
     );
 
+    const inPathPart = property.description && property.description.toLocaleLowerCase() === 'taken from path'
+      ? { inPath: true } as { inPath: true }
+      : {};
+
     return {
       name,
       isRequired,
+      ...inPathPart,
       types: propTypes.map((typeName: string) => this.typeFactory.translateType(property, typeName, factoryContext)),
     };
   }

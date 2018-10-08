@@ -1,6 +1,7 @@
 // Interfaces that come from swagger
 
 export interface SwaggerSchemaProperty {
+  description?: string;
   type: string | string[];
   format?: string;
   enum?: string;
@@ -127,6 +128,7 @@ export interface ObjectProperty {
   name: string;
   isRequired: boolean;
   types: PropertyType[];
+  inPath?: true;
 }
 
 export interface Schema {

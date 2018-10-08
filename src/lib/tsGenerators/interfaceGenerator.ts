@@ -111,6 +111,7 @@ export class InterfaceGenerator {
                 template = template.replace(/{{subType}}/g, this.getPropertyMetadataSubType(property));
                 template = template.replace(/{{isRequired}}/g, `${property.isRequired}`);
                 template = template.replace(/{{apiField}}/g, propertyName);
+                template = template.replace(/{{inPath}}/g, property.inPath ? '  inPath: true,\n' : '');
 
                 template = template.split('\n').map(item => tabsStub.repeat(tabs) + item).join('\n');
 
