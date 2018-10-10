@@ -23,7 +23,7 @@ request('https://api.bpdevs.com/docs/swagger.json', (error: any, response: any, 
   };
 
   const schemasAndPaths = parseSwagger(responseJson, ctx);
-  const outDir = '../out';
+  const outDir = './out';
 
   rimraf(outDir, () => {
 

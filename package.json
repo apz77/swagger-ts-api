@@ -4,7 +4,8 @@
   "description": "Typescript API builder from swagger schema",
   "main": "./dist/index.js",
   "scripts": {
-    "build": "tsc -p ./src"
+    "build": "tsc -p ./src",
+    "test": "node ./dist/test.js"
   },
   "repository": {
     "type": "git",
