@@ -59,7 +59,7 @@ var InterfaceGenerator = /** @class */ (function () {
         // {{emptyModelFields}}
         var requiredFields = propertyNames
             .filter(function (propertyName) { return properties[propertyName].isRequired; })
-            .map(function (propertyName) { return getPropertyName(properties[propertyName], newCtx) + ": Api.v0"; });
+            .map(function (propertyName) { return getPropertyName(properties[propertyName], newCtx) + ": void 0"; });
         result = result.replace(/{{emptyModelFields}}/g, requiredFields.join(','));
         result = result.replace(/{{emptyModelFields}}/g, '');
         // {{fieldsMetadata}}
