@@ -47,6 +47,7 @@ export const defaultInterfaceTemplate =
     '\n';
 
 export const defaultMetadataTemplate =
+    '/* tslint:disable:max-line-length */\n' +
     'export module {{name}}Metadata {\n' +
     '\n' +
     '  export const modelType = \'{{name}}\';\n' +
@@ -129,6 +130,7 @@ export const defaultModuleMethodTemplate =
     '{{responseMetadata}}';
 
 export const defaultModuleTemplate =
+    '/* tslint:disable:max-line-length */\n' +
     '{{indexImport}}\n' +
     '{{imports}}\n\n' +
     'export module {{ModuleName}} {\n' +

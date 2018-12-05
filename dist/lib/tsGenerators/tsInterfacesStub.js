@@ -40,7 +40,8 @@ exports.defaultInterfaceTemplate = 'export interface {{name}} extends Api.BaseMo
     '{{properties}}\n' +
     '}\n' +
     '\n';
-exports.defaultMetadataTemplate = 'export module {{name}}Metadata {\n' +
+exports.defaultMetadataTemplate = '/* tslint:disable:max-line-length */\n' +
+    'export module {{name}}Metadata {\n' +
     '\n' +
     '  export const modelType = \'{{name}}\';\n' +
     '  export const emptyModel = { {{emptyModelFields}} };\n' +
@@ -107,7 +108,8 @@ exports.defaultModuleMethodTemplate = '{{method}}' +
     '{{requestMetadata}}' +
     '{{formMetadata}}' +
     '{{responseMetadata}}';
-exports.defaultModuleTemplate = '{{indexImport}}\n' +
+exports.defaultModuleTemplate = '/* tslint:disable:max-line-length */\n' +
+    '{{indexImport}}\n' +
     '{{imports}}\n\n' +
     'export module {{ModuleName}} {\n' +
     '{{allMethods}}\n' +
