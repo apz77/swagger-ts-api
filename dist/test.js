@@ -16,7 +16,7 @@ request('https://api.bpdevs.com/docs/swagger.json', function (error, response, b
         tabs: 0,
     };
     var schemasAndPaths = index_1.parseSwagger(responseJson, ctx);
-    var outDir = '../out';
+    var outDir = './out';
     rimraf(outDir, function () {
         fs.mkdirSync(outDir);
         if (schemasAndPaths) {
