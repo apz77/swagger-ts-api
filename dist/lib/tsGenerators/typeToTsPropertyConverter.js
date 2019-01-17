@@ -86,6 +86,7 @@ var TypeToTsPropertyConverter = /** @class */ (function () {
                 console.error(error);
                 return error;
             case types_1.BasicType.ERROR: return "ErrorType(" + type.error + ")";
+            default: return 'any';
         }
     };
     TypeToTsPropertyConverter.prototype.convertObject = function (type, apiPrefix, ctx) {

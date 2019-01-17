@@ -94,6 +94,7 @@ export class TypeToTsPropertyConverter {
         return error;
 
       case BasicType.ERROR: return `ErrorType(${(type as ErrorType).error})`;
+      default: return 'any';
     }
   }
 
