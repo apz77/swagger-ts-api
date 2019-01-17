@@ -19,7 +19,7 @@ var MethodGenerator = /** @class */ (function () {
             : null;
         var requestMetadata = method.request
             ? Array.isArray(method.request)
-                ? null
+                ? !types_1.isEmptyModel(method.request[0]) ? method.request[0].name + "Metadata" : null
                 : !types_1.isEmptyModel(method.request) ? method.request.name + "Metadata" : null
             : null;
         var requestMetadatas = method.request && requestType

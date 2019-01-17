@@ -32,7 +32,7 @@ export class MethodGenerator {
 
     const requestMetadata = method.request
         ? Array.isArray(method.request)
-            ? null
+            ? !isEmptyModel(method.request[0]) ? `${method.request[0].name}Metadata` : null
             : !isEmptyModel(method.request) ? `${method.request.name}Metadata` : null
         : null;
 
