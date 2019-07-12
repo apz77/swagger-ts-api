@@ -25,13 +25,15 @@ var TypeFileGenerator = /** @class */ (function () {
         var result = this.typesTemplate.slice();
         var interfaces = '';
         var newCtx = __assign({}, ctx, { usedTypes: {}, isResponse: false, tabs: 0 });
-        if (schemas[tag]) {
+        var schemaName = Object.keys(schemas).find(function (schema) { return schema.toLowerCase() === tag.toLowerCase(); });
+        if (schemaName && schemas[schemaName]) {
             interfaces +=
-                this.interfaceGenerator.generate(schemas[tag], schemas, newCtx) + '\n\n' +
-                    this.typeCheckGenerator.generate(schemas[tag], newCtx) + '\n\n';
+                this.interfaceGenerator.generate(schemas[schemaName], schemas, newCtx) + '\n\n' +
+                    this.typeCheckGenerator.generate(schemas[schemaName], newCtx) + '\n\n';
         }
-        if (paths[tag]) {
-            paths[tag].map(function (method) {
+        var pathName = Object.keys(paths).find(function (paths) { return paths.toLowerCase() === tag.toLowerCase(); });
+        if (pathName && paths[pathName]) {
+            paths[pathName].map(function (method) {
                 interfaces += _this.moduleGenerator.generateMethodTypes(method, schemas, newCtx);
             });
         }

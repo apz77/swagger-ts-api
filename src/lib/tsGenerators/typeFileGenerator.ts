@@ -31,14 +31,18 @@ export class TypeFileGenerator {
       tabs: 0,
     }
 
-    if (schemas[tag]) {
+    const schemaName = Object.keys(schemas).find(schema => schema.toLowerCase() === tag.toLowerCase())
+
+    if (schemaName && schemas[schemaName]) {
       interfaces +=
-        this.interfaceGenerator.generate(schemas[tag], schemas, newCtx) + '\n\n' +
-        this.typeCheckGenerator.generate(schemas[tag], newCtx) + '\n\n';
+        this.interfaceGenerator.generate(schemas[schemaName], schemas, newCtx) + '\n\n' +
+        this.typeCheckGenerator.generate(schemas[schemaName], newCtx) + '\n\n';
     }
 
-    if (paths[tag]) {
-      paths[tag].map((method) => {
+    const pathName = Object.keys(paths).find(paths => paths.toLowerCase() === tag.toLowerCase());
+
+    if (pathName && paths[pathName]) {
+      paths[pathName].map((method) => {
         interfaces += this.moduleGenerator.generateMethodTypes(method, schemas, newCtx);
       });
     }

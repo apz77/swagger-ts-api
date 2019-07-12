@@ -44,19 +44,23 @@ function generateTypeScriptFiles(filesPath, paths, schemas, ctx) {
     var pathsTags = Object.keys(paths)
         .reduce(function (result, key) { return result.concat(paths[key].map(function (path) { return path.tag; })); }, []);
     var tags = pathsTags.concat(Object.keys(schemas).map(function (tag) { return tag.toLowerCase(); })).filter(function (value, index, array) { return array.indexOf(value) === index; });
-    for (var _i = 0, tags_1 = tags; _i < tags_1.length; _i++) {
-        var tag = tags_1[_i];
+    var _loop_1 = function (tag) {
+        var pathName = Object.keys(paths).find(function (paths) { return paths.toLowerCase() === tag.toLowerCase(); });
         var filename = filesPath + typeFileGenerator.getFileName(tag) + '.ts';
         var fileContent = typeFileGenerator.generate(paths, schemas, tag, ctx);
         replaceFile(filename, fileContent);
         var moduleFilename = filesPath + moduleGenerator.getFilename(tag) + '.ts';
-        var moduleFileContent = moduleGenerator.generate(tag, paths[tag] || [], schemas, __assign({}, ctx, { tabs: 0 }));
+        var moduleFileContent = moduleGenerator.generate(tag, pathName && paths[pathName] || [], schemas, __assign({}, ctx, { tabs: 0 }));
         replaceFile(moduleFilename, moduleFileContent);
         if (schemas[tag]) {
             var metadataFileName = filesPath + typeFileGenerator.getFileName(tag) + 'Metadata.ts';
             var metadataFileContent = interfaceGenerator.generateMetadata(schemas[tag], schemas, __assign({}, ctx, { tabs: 0, usedTypes: {}, isResponse: false }));
             replaceFile(metadataFileName, metadataFileContent);
         }
+    };
+    for (var _i = 0, tags_1 = tags; _i < tags_1.length; _i++) {
+        var tag = tags_1[_i];
+        _loop_1(tag);
     }
     var indexFile = filesPath + indexFileGenerator.getIndexFileName() + '.ts';
     var indexFileContent = indexFileGenerator.generateIndex(schemas, tags);

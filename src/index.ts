@@ -47,12 +47,13 @@ export function generateTypeScriptFiles(filesPath: string,
   ].filter((value, index, array) => array.indexOf(value) === index);
 
   for (const tag of tags) {
+    const pathName = Object.keys(paths).find(paths => paths.toLowerCase() === tag.toLowerCase());
     const filename = filesPath + typeFileGenerator.getFileName(tag) + '.ts';
     const fileContent = typeFileGenerator.generate(paths, schemas, tag, ctx);
     replaceFile(filename, fileContent);
 
     const moduleFilename = filesPath + moduleGenerator.getFilename(tag) + '.ts';
-    const moduleFileContent = moduleGenerator.generate(tag, paths[tag] || [], schemas, { ...ctx, tabs: 0 });
+    const moduleFileContent = moduleGenerator.generate(tag, pathName && paths[pathName] || [], schemas, { ...ctx, tabs: 0 });
     replaceFile(moduleFilename, moduleFileContent);
 
     if (schemas[tag]) {
