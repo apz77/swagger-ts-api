@@ -38,10 +38,12 @@ export function generateTypeScriptFiles(filesPath: string,
   const moduleGenerator = new ModuleGenerator(interfaceGenerator, methodToTsGenerator, typeCheckGenerator, indexFileGenerator);
   const typeFileGenerator = new TypeFileGenerator(moduleGenerator, interfaceGenerator, typeCheckGenerator, indexFileGenerator);
 
+  const pathsTags = Object.keys(paths)
+      .reduce((result, key) => result.concat(paths[key].map(path => path.tag)), [] as string[]);
 
   const tags = [
-    ...Object.keys(paths),
-    ...Object.keys(schemas),
+    ...pathsTags,
+    ...Object.keys(schemas).map(tag => tag.toLowerCase()),
   ].filter((value, index, array) => array.indexOf(value) === index);
 
   for (const tag of tags) {

@@ -15,7 +15,7 @@ if (fs.existsSync(schemaOutFile)) {
 }
 
 request(
-    arg === 'local' ? 'http://127.0.0.1:3000/docs/swagger.json' : 'https://api.bpdevs.com/docs/swagger.json',
+    arg === 'local' ? 'http://127.0.0.1:3002/docs/swagger.json' : 'https://api.bpdevs.com/docs/swagger.json',
     (error: any, response: any, body: string) => {
       const responseJson = JSON.parse(body);
 

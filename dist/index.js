@@ -41,7 +41,9 @@ function generateTypeScriptFiles(filesPath, paths, schemas, ctx) {
     var indexFileGenerator = new indexFileGenerator_1.IndexFileGenerator(interfaceGenerator);
     var moduleGenerator = new moduleGenerator_1.ModuleGenerator(interfaceGenerator, methodToTsGenerator, typeCheckGenerator, indexFileGenerator);
     var typeFileGenerator = new typeFileGenerator_1.TypeFileGenerator(moduleGenerator, interfaceGenerator, typeCheckGenerator, indexFileGenerator);
-    var tags = Object.keys(paths).concat(Object.keys(schemas)).filter(function (value, index, array) { return array.indexOf(value) === index; });
+    var pathsTags = Object.keys(paths)
+        .reduce(function (result, key) { return result.concat(paths[key].map(function (path) { return path.tag; })); }, []);
+    var tags = pathsTags.concat(Object.keys(schemas).map(function (tag) { return tag.toLowerCase(); })).filter(function (value, index, array) { return array.indexOf(value) === index; });
     for (var _i = 0, tags_1 = tags; _i < tags_1.length; _i++) {
         var tag = tags_1[_i];
         var filename = filesPath + typeFileGenerator.getFileName(tag) + '.ts';

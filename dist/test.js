@@ -9,7 +9,7 @@ var schemaOutFile = 'schema.json';
 if (fs.existsSync(schemaOutFile)) {
     fs.unlinkSync(schemaOutFile);
 }
-request(arg === 'local' ? 'http://127.0.0.1:3000/docs/swagger.json' : 'https://api.bpdevs.com/docs/swagger.json', function (error, response, body) {
+request(arg === 'local' ? 'http://127.0.0.1:3002/docs/swagger.json' : 'https://api.bpdevs.com/docs/swagger.json', function (error, response, body) {
     var responseJson = JSON.parse(body);
     var ctx = {
         rawTypes: true,
