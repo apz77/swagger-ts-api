@@ -43,7 +43,7 @@ export function generateTypeScriptFiles(filesPath: string,
 
   const tags = [
     ...pathsTags,
-    ...Object.keys(schemas).map(tag => tag.toLowerCase()),
+    ...Object.keys(schemas).map(tag => tag),
   ].filter((value, index, array) => array.indexOf(value) === index);
 
   for (const tag of tags) {
